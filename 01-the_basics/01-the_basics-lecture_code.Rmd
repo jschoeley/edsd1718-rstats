@@ -1,0 +1,174 @@
+---
+title: "R basics"
+author: "Jonas Schöley"
+date: "September 5th, 2017"
+output:
+  github_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+Todays concepts
+---------------
+
+  - arithmetic calculations
+  - order of evaluation
+  - objects
+  - assignments
+  - the workspace
+  - indexing
+  - vectors
+  - vectorization
+  - data frames
+  - functions
+  - arguments
+  - logical comparisons
+
+Todays operators
+----------------
+
+  - `+`, `-`, `/`, `*`, `^`
+  - `[]`
+  - `<-`
+  - `>=`
+  - `:`
+
+Todays functions
+----------------
+
+  - `data.frame()`
+  - `plot()`, `lines()`
+  - `log()`, `exp()`
+  - `function()`
+  - `uniroot()`
+
+When will 10 billion people live on earth?
+------------------------------------------
+
+In 2017 around 7.5 billion live on planet earth. Ten years earlier the number was 6.6 billion. We feed this information into R by *assigning* it to an *object* via the *assignment operator* `<-`.
+
+```{r}
+N2017 <- 7.5e9
+N2007 <- 6.6e9
+```
+
+We choose the names `N2017` and `N2007` for our objects. It is a good idea to pick a name which lets you remember the content of the object. Some mild restrictions apply to naming:
+
+  > "A syntactically valid name consists of letters, numbers and the dot or
+  > underline characters and starts with a letter or the dot not followed by a
+  > number. Names such as '.2way' are not valid, and neither are the reserved
+  > words." (from `?make.names`)
+
+### Arithmetic growth
+
+Now that we know the world population at two points in time we can calculate the average absolute annual growth rate. Doing basic arithmetic in R feels much like using a desk calculator.
+
+```{r}
+# an average annual growth of 90 million people
+R <- (N2017-N2007)/10
+```
+
+Again, we assign the result of our calculation to a new object named `R`, the absolute annual growth rate.
+
+We use absolute growth rates if we want to model linear growth, i.e. a situation where the population number $N$ is a linear function of time:
+
+$$
+N(t+n) = N(t) + nR
+$$
+
+So our projections for the population numbers in 2018 and 2019 are
+
+```{r}
+N2017+R # 2018
+N2017+R*2 # 2019
+```
+
+What about the next 10 years? It would be tedious to type it out manually so we make use of Rs vector arithmetic.
+
+```{r}
+# next 10 years
+N2017+R*1:10
+```
+
+Using the `:` operator we have constructed an integer sequence from 1 to 10, i.e. a vector object. Multiplying a *scalar* (a vector with a single element) like `R` with a vector like `1:10` produces a vector with entries $R\cdot 1, R\cdot 2, \ldots, R \cdot 10$. Vector (and matrix) operations are at the heart of R. Usually we don't need to state what we want on an element-by-element basis but instead work with complete vectors. Writing R code in a way that makes use of the vector and matrix features in R is called *vectorization* -- an important concept for writing efficient R code.
+
+We want to get an estimate of when the world population will hit 10 million people. So we will linearly project 50 years into the future and store our results in a `data.frame` -- think of it as a table.
+
+```{r}
+arith_growth <-
+  data.frame(
+    year = 2017 + 1:50,
+    N = N2017 + R*1:50
+  )
+arith_growth
+```
+
+Our data frame has two columns and 50 rows. The columns have names `year` and `N`. The advantage of using a data frame to store your calculation results is the same advantage as using a table: all your results in a single place. Note that in order to "see" (`print` in R lingo) the table we have to explicitly call the object we stored the table in (`arith_growth`).
+
+The function `plot()`, if applied to a data frame with two numeric columns, plots the first column against the second.
+
+```{r}
+plot(arith_growth)
+```
+
+```{r}
+# all rows with a value of N larger or equal to 10 billion
+arith_growth[arith_growth$N >= 10e9,]
+# all years of rows with a value of N larger or equal to 10 billion
+arith_growth[arith_growth$N >= 10e9, 'year'][1]
+# the first year where N gets larger or equal to 10 billion
+arith_growth[arith_growth$N >= 10e9, 'year'][1]
+```
+
+Geometric growth
+----------------
+
+$$
+N(t+n) = N(t) \cdot (1+r)^n
+$$
+
+```{r}
+# an average annual growth rate of ~1.3%
+r <- (1+(N2017-N2007)/N2007)^(1/10) - 1
+
+# next 10 years
+N2007*(1+r)^(1:10) # what's with that: N0*(1+r)^1:10
+
+geom_growth <-
+  data.frame(
+    year = 2017 + 1:100,
+    N = N2017*(1+r)^(1:100)
+  )
+geom_growth
+plot(arith_growth)
+lines(geom_growth, type = 'p')
+geom_growth[geom_growth$N >= 10e9, 'year'][1]
+```
+
+Exponential growth
+------------------
+
+$$
+N(t+n) = N(t) \cdot \exp(rn)
+$$
+
+```{r}
+r = log(N2017/N2007)/10
+
+N2007*exp(r*1:10)
+
+ExpGrowth <- function (x, N0, r) {
+  N0*exp(r*x)
+}
+
+years_until_10b <- uniroot(function (x) {ExpGrowth(x, N2007, r)-10e9}, interval = c(0, 100))
+years_until_10b
+```
+
+Further reading
+---------------
+
+- Riffe etal. (2017). EDSD Computer Programming. Chapter 1. Basic R.
+- Smith, D. P., & Keyfitz, N. (2013). Mathematical Demography. Chapter 1.1.
+  Berlin, Heidelberg: Springer. https://doi.org/10.1007/978-3-642-35858-6
