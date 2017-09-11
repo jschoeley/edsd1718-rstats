@@ -13,8 +13,10 @@ Please install the current versions of
 Course structure
 ----------------
 
-- Mon Sep  9, 14-16: Basic R
-- Tue Sep 13, 10-12: Data structures
+- Mon Sep 11, 14-16: [**Basic R**](https://github.com/jschoeley/edsd1718-rstats/tree/master/01-the_basics)
+    - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/01-the_basics/01-the_basics-lecture_code.pdf), [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/01-the_basics/extended_notes/01-the_basics.pdf)
+    - [Introduction to R Markdown](http://rmarkdown.rstudio.com/lesson-1.html)
+- Wed Sep 13, 10-12: Data structures
 - Fri Sep 15, 10-12: Functions and control flow
 - Mon Sep 18, 14-16: Data transformation
 - Tue Sep 19, 14-16: Data visualization
