@@ -1,0 +1,223 @@
+---
+title: "Data structures"
+author: "Jonas Schöley"
+date: "September 13, 2017"
+output:
+  pdf_document:
+    toc: yes
+  github_document:
+    toc: yes
+---
+
+Todays concepts
+---------------
+
+- data structures
+  - vector
+  - data frame
+  - matrix
+  - array
+  - list
+- indexing
+  - by position
+  - by name
+- vectorization
+
+Todays operators
+----------------
+
+- `[]`
+- `[[]]`
+- `$`
+- `:`
+
+Todays functions
+----------------
+
+- `c()`
+- `seq()`
+- `length()`
+- `cumprod()`
+- `diff()`
+- `names()`
+
+Different data analysis problems call for different *data structures*. Like most programming languages R is very flexible in that regard and features numerous ways to represent data. A *data frame* is a table comparable to the tables you work with in Excel, STATA or SPSS. A vector comes in handy when you want to store $n$ values and index them $1 \ldots n$, i.e. it *always* comes in handy. On *matrices* you can do matrix algebra. *Arrays* are just matrices generalized to more than 2 dimensions. *Lists* are the most flexible data structure in R. You can use them to represent hierarchical data or to store many different things (plots, matrices, data frames) in a single object.
+
+Will the contraceptices fail?
+-----------------------------
+
+This excercise shows you how to work with vectors. In statistics and data analysis we rarely work with single numbers. Instead we work on collections of numbers (e.g. population size by age, average clutch size by bird etc.). Treating these collections of numbers as vectors is a convenient abstraction.
+
+We create a vector of numbers using the `r c()` function.
+
+```{r}
+# Number of people using contraception
+# at beginning of interval
+Nx <- c(100, 80, 70, 60, 56)
+# Number of people becoming pregnant
+# during the interval
+Dx <- c(5, 4, 5, 2)
+```
+
+There are other ways apart from `c()` to create a vector. Below we use the `seq()` function to create a sequence of ages 0 to 12 in intervals of 3.
+
+```{r}
+# Age at beginning of interval
+x <- seq(from = 0, to = 12, by = 3)
+```
+
+Assigning a single value to an object creates a vector of length 1, i.e. a *scalar*.
+
+```{r}
+# Width of age interval
+nx <- 3
+```
+
+We can divide each element of a vector by the corresponding element of a different vector of same length just by dividing the vectors (this is also true for addition, substraction and multiplication). Our `Nx` vector has one element more than our `Dx` vector. In order to make `Nx` the same length as `Dx` we remove the last element of `Nx`.
+
+```{r}
+# Probability of getting pregnant
+# during the interval [x, x+n)
+qx <- Dx / Nx[-length(Nx)]
+qx
+```
+
+We can also do arithmetic with a vector and a scalar. Here we substract each element of the qx vector from the scalar 1.
+
+```{r}
+# Probability of not getting pregnant
+# during the interval [x, x+n)
+px <- 1-qx
+px
+```
+
+The `cumprod()` function returns the cumulative product of its input vector. Its output is of the same length as its input.
+
+```{r}
+# Probability not getting pregnant up until start of interval
+lx <- cumprod(c(1, px))
+lx
+```
+
+The cumulative distribution function gives the probability of getting pregnant until $x$. It is the additive inverse of the survival function.
+
+```{r}
+# Probability of getting pregnant until start of interval
+Fx <- 1-lx
+```
+
+The last element of the `Fx` vector is the probability of getting pregnant during the first year of contraceptive use. We first count the number of elements in the `Fx` vector (`length(Fx)`) and use this number to index the last element of `Fx`.
+
+```{r}
+# Probability of getting pregnant during
+# first year of contraceptive use
+Fx[length(Fx)]
+```
+
+We estimate the probability of getting pregnant during the first year of contraceptive use as being 18.9 %. Demographers however would not be very happy about our methodology because it is based on conditional probabilities ($q(x), p(x)$) as opposed to *occurence-exposure* rates (i.e. mortality rates), the latter being thougt of as a better estimate for the risk of experiencing an event during some time interval. So let's do this excercise again, the demographers way, and compare results.
+
+We have written the probability of getting pregnant in interval [x, x+n) as ${}_nD_x/N_x$, with $N_x$ being the number of people who are not pregnant at the start of the interval. If we write ${}_nD_x/{}_nE_x$ and let ${}_nE_x$ be the person-years of exposure to risk of getting pregnant during interval $[x, x+n)$ we get the *pregancy rate*.
+
+```{r}
+# Number of censorings during interval
+Cx <- diff(-Nx)-Dx
+
+# Person-months of exposure to risk during interval assuming constant
+# risk of pregnancy and censoring during interval
+Ex <- (diff(Nx)*nx) / log(Nx[-1]/Nx[-length(Nx)])
+
+# Pregancy rate during interval
+Mx <- Dx/Ex
+
+# Probability of getting pregnant during interval
+qx2 <- 1-exp(-nx*Mx)
+# Probability of not getting pregnant during the interval
+px2 <- 1-qx2
+
+# Probability not getting pregnant up until start of interval
+lx2 <- cumprod(c(1, px2))
+
+# Probability of getting pregnant until start of interval
+Fx2 <- 1-lx2
+Fx2[5]
+
+# Putting it all in a table
+data.frame(
+  age = x[1:4],
+  width = nx,
+  Nx = Nx[1:4],
+  Dx = Dx,
+  qx, qx2, delta = qx-qx2
+)
+```
+
+Calculating life-expectancy
+---------------------------
+
+```{r}
+swe <- read.table('swe_dxnx.txt', skip = 3, header = TRUE)
+str(swe)
+
+swe1751 <- swe[swe$period == '1751-1759',]
+swe1751$x <- c(0, 1, 5, seq(10, 110, 5))
+swe1751$nx <- c(diff(swe1751$x), Inf)
+swe1751$nmx <- swe1751$deaths / swe1751$exposure
+swe1751$npx <- exp(-swe1751$nx*swe1751$nmx)
+swe1751$lx <- c(1, cumprod(swe1751$npx)[-nrow(swe1751)])
+swe1751$ndx <- c(-diff(swe1751$lx), swe1751$lx[nrow(swe1751)])
+swe1751$nLx <- -swe1751$ndx*swe1751$nx / log(swe1751$npx)
+swe1751$nLx[is.nan(swe1751$nLx)] <- 0
+swe1751$Tx <- rev(cumsum(rev(swe1751$nLx)))
+swe1751$ex <- swe1751$Tx / swe1751$lx
+```
+
+The `within()` function allows you to perform operations "within" a data frame. Doing so you don't need to specify the data frame anymore if you want to select or add a column.
+
+```{r}
+within(swe1751, {
+  x <- c(0, 1, 5, seq(10, 110, 5))
+  nx <- c(diff(x), Inf)
+  nmx <- deaths / exposure
+  npx <- exp(-nx*nmx)
+  lx <- c(1, cumprod(npx)[-nrow(swe1751)])
+  ndx <- c(-diff(lx), lx[nrow(swe1751)])
+  nLx <- -ndx*nx / log(npx)
+  nLx[is.nan(nLx)] <- 0
+  Tx <- rev(cumsum(rev(nLx)))
+  ex <- Tx / lx
+})
+```
+
+Age-standardization of death rates
+----------------------------------
+
+```{r}
+periods <- unique(swe$period)
+age_groups <- unique(swe$age_group)
+D <- matrix(swe$deaths, nrow = length(age_groups), dimnames = list(age_groups, periods))
+E <- matrix(swe$exposure, nrow = length(age_groups), dimnames = list(age_groups, periods))
+
+M <- D/E
+M[is.nan(M)] <- 0
+CMRt <- colSums(D) / colSums(E)
+plot(x = periods, y = CMRt)
+
+pE <- prop.table(E, 2)
+sM <- t(M)%*%pE
+plot(x = periods, y = sM[,'2000-2009'])
+lines(x = periods, y = diag(sM))
+```
+
+Lists
+-----
+
+```{r}
+library(demography)
+
+dd <-demogdata(M, pop = E,
+               ages = c(0, 1, seq(5, 110, 5)),
+               years = c(1751, seq(1760, 2010, 10)),
+               type = 'mortality', label = 'Sweden', name = 'Total')
+str(dd)
+plot(dd)
+```
