@@ -1,29 +1,17 @@
 ---
 title: "Assignment 1"
 author: "Jonas Schöley"
-date: "September 13, 2017"
+date: "September 15, 2017"
 output:
-  github_document:
-    toc: no
   pdf_document:
     toc: no
-references:
-- ISBN: 1-55786-451-9
-  author:
-  - family: Preston
-    given: Samuel
-  id: preston2001
-  issue: 4
-  issued:
-    year: 2001
-  publisher: Blackwell Publishers
-  title: Demography. Measuring and Modeling Population Processes.
-  type: book
+  github_document:
+    toc: no
 ---
 
 1. Register at http://www.mortality.org/.
 2. Download single year, single period death counts and exposures for a country of your choice.
-3. *For each year in the data*, calculate life expectancy at birth^[See @preston2001 [p. 49, Box 3.1]] and the coefficient of variation of the life-table distribution of deaths.
+3. *For each year in the data* (and a single sex of your choice, i.e. "female", "male" or "total"), calculate life expectancy at birth (see [1], p. 49, Box 3.1) and the coefficient of variation of the life-table distribution of deaths.
 
 You can calculate the coefficient of variation for a life-table as
 
@@ -33,9 +21,13 @@ $$
 
 with ${}_na_x \approx 0.5n_x$.
 
-(Bored? How about fitting a spline to the $\ell_x$ values of the life-table using `splinefun()` and use the continuous formula 7 with the fitted spline and numerical integration (`integrate()`) to calculate the Gini coefficient? No pressure though.)
+(Bored? How about fitting a spline to the $\ell_x$ values of the life-table using `splinefun()` and use the continuous formula 7 in [2] with the fitted spline and numerical integration (`integrate()`) to calculate the Gini coefficient? No pressure though.)
 
 4. Show the relationship among life-expectancy and the coefficient of variation of the life-table distribution of deaths. What do you see? If you have an explanation for the relationship I would be interested in reading about it.
 
 References
 ----------
+
+[1] Preston, S. H., Heuveline, P., & Guillot, M. (2001). Demography. Oxford, UK: Blackwell.
+
+[2] Shkolnikov, V., Andreev, E., & Begun, A. Z. (2003). Gini coefficient as a life table function. Demographic Research, 8(17), 305–358. https://doi.org/10.4054/DemRes.2003.8.11.
