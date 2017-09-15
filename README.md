@@ -30,3 +30,22 @@ Assignments
 -----------
 
 - [**Assignment 1**](https://github.com/jschoeley/edsd1718-rstats/tree/master/assignment1/assignment1.pdf) due Sunday, September 17.
+
+### Format
+
+Please email me the finished assignments (jschoeley@health.sdu.dk). For each assignment I would like you to send me at least 2 files:
+  1. the source code (`.R`, or `.Rmd`), and
+  2. a pdf with your code, your comments, your results and your answers to the questions in the assignment.
+
+If you have downloaded data for the assignment please send me this data as well.
+
+### If you need help
+
+Of course *you can and should* take advantage of your peers when you're stuck. This *does not mean* to copy the solutions but instead to ask for help on specific problems. You can also send me a mail asking for advice. Make sure to attach your data and code to the email so I can have a look at what went wrong.
+
+### Grading
+
+You get a *pass* if you hand in all of your assignments. There are 3 ways to get a *high pass*:
+  1. Do you assignments very well, i.e. maybe do a bit more than I've asked for.
+  2. Write down which problems you've encountered while working on the assignment and how you've solved them.
+  3. Hand in some special assignment that I've given you (that is for those who already know R).
