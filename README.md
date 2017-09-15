@@ -20,7 +20,6 @@ Course structure
     - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/02-data_structures/02-data_structures-lecture_code.pdf), [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/02-data_structures/extended_notes/02-data_structures.pdf)
 - Fri Sep 15, 10-12: [**Functions and control flow**](https://github.com/jschoeley/edsd1718-rstats/tree/master/03-functions_and_control_flow)
     - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/03-functions_and_control_flow/03-functions_and_control_flow.pdf), [Self study material 1](https://github.com/jschoeley/edsd1718-rstats/blob/master/03-functions_and_control_flow/extended_notes/ControlStructures.pdf), [Self study material 2](https://github.com/jschoeley/edsd1718-rstats/blob/master/03-functions_and_control_flow/extended_notes/WriteFunctions.pdf)
-    - [Introduction to R Markdown](http://rmarkdown.rstudio.com/lesson-1.html)
 - Mon Sep 18, 14-16: Data transformation
 - Tue Sep 19, 14-16: Data visualization
 - Wed Sep 20, 14-16: Optimization and model fitting
