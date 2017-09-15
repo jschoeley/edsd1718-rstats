@@ -1,0 +1,185 @@
+Country,GDPcapPPP,e0,Region,WorldBankGroup
+Afghanistan,1121,60,Eastern Mediterranean,Low-income
+Albania,9207,74,Europe,Lower-middle-income
+Algeria,7305,72,Africa,Upper-middle-income
+Angola,6092,51,Africa,Lower-middle-income
+Antigua and Barbuda,18197,75,Americas,High-income
+Argentina,17917,76,Americas,Upper-middle-income
+Armenia,5922,71,Europe,Lower-middle-income
+Australia,41943,83,Western Pacific,High-income
+Austria,41908,81,Europe,High-income
+Azerbaijan,10365,72,Europe,Lower-middle-income
+The Bahamas,31324,75,Americas,High-income
+Bahrain,33136,77,Eastern Mediterranean,High-income
+Bangladesh,1957,70,South-East Asia,Low-income
+Barbados,25043,78,Americas,High-income
+Belarus,15379,72,Europe,Upper-middle-income
+Belgium,37448,80,Europe,High-income
+Belize,8598,75,Americas,Lower-middle-income
+Benin,1554,59,Africa,Low-income
+Bhutan,5991,68,South-East Asia,Lower-middle-income
+Bolivia,5041,68,Americas,Lower-middle-income
+Bosnia and Herzegovina,8048,77,Europe,Upper-middle-income
+Botswana,15706,62,Africa,Upper-middle-income
+Brazil,11876,74,Americas,Upper-middle-income
+Brunei Darussalam,54114,77,Western Pacific,High-income
+Bulgaria,14076,74,Europe,Upper-middle-income
+Burkina Faso,1489,58,Africa,Low-income
+Burundi,620,56,Africa,Low-income
+Cabo Verde,4303,74,Africa,Lower-middle-income
+Cambodia,2395,72,Western Pacific,Low-income
+Cameroon,2338,56,Africa,Lower-middle-income
+Canada,42469,82,Americas,High-income
+Central African Republic,851,51,Africa,Low-income
+Chad,2474,51,Africa,Low-income
+Chile,18182,80,Americas,Upper-middle-income
+China,9051,75,Western Pacific,Lower-middle-income
+Colombia,10697,79,Americas,Upper-middle-income
+Comoros,1251,62,Africa,Low-income
+Democratic Republic of the Congo,606,52,Africa,Low-income
+Republic of Congo,4615,59,Africa,Lower-middle-income
+Costa Rica,12594,79,Americas,Upper-middle-income
+Cote Ivoire,1707,53,Africa,Lower-middle-income
+Croatia,18102,78,Europe,High-income
+Cyprus,26773,82,Europe,High-income
+Czech Republic,27059,78,Europe,High-income
+Denmark,37249,80,Europe,High-income
+Djibouti,2648,61,Eastern Mediterranean,Lower-middle-income
+Dominica,13964,75,Americas,Upper-middle-income
+Dominican Republic,9547,77,Americas,Upper-middle-income
+Ecuador,9682,75,Americas,Lower-middle-income
+Egypt,6474,71,Eastern Mediterranean,Lower-middle-income
+El Salvador,7316,72,Americas,Lower-middle-income
+Equatorial Guinea,24887,55,Africa,High-income
+Eritrea,710,63,Africa,Low-income
+Estonia,22472,77,Europe,High-income
+Ethiopia,1256,64,Africa,Low-income
+Fiji,4886,69,Western Pacific,Upper-middle-income
+Finland,35740,81,Europe,High-income
+France,35312,82,Europe,High-income
+Gabon,18386,63,Africa,Upper-middle-income
+The Gambia,1868,61,Africa,Low-income
+Georgia,5846,74,Europe,Lower-middle-income
+Germany,39335,81,Europe,High-income
+Ghana,3316,62,Africa,Low-income
+Greece,24469,81,Europe,High-income
+Grenada,13361,73,Americas,Upper-middle-income
+Guatemala,5153,72,Americas,Lower-middle-income
+Guinea,1108,58,Africa,Low-income
+Guinea-Bissau,1209,54,Africa,Low-income
+Guyana,7755,63,Americas,Lower-middle-income
+Haiti,1260,62,Americas,Low-income
+Honduras,4744,74,Americas,Lower-middle-income
+Hungary,19445,75,Europe,High-income
+Iceland,39544,82,Europe,High-income
+India,3900,66,South-East Asia,Lower-middle-income
+Indonesia,4925,71,South-East Asia,Lower-middle-income
+Islamic Republic of Iran,12444,74,Eastern Mediterranean,Lower-middle-income
+Iraq,7209,70,Eastern Mediterranean,Lower-middle-income
+Ireland,40716,81,Europe,High-income
+Israel,33878,82,Europe,High-income
+Italy,30551,83,Europe,High-income
+Jamaica,8916,74,Americas,Upper-middle-income
+Japan,35724,84,Western Pacific,High-income
+Jordan,5968,74,Eastern Mediterranean,Lower-middle-income
+Kazakhstan,13574,68,Europe,Upper-middle-income
+Kenya,1737,61,Africa,Low-income
+Kiribati,6241,66,Western Pacific,Lower-middle-income
+Korea,31950,81,Western Pacific,High-income
+Kuwait,39877,78,Eastern Mediterranean,High-income
+Kyrgyz Republic,2350,69,Europe,Low-income
+Lao P.D.R.,2846,66,Western Pacific,Low-income
+Latvia,18037,74,Europe,Upper-middle-income
+Lebanon,14618,80,Eastern Mediterranean,Upper-middle-income
+Lesotho,2106,50,Africa,Lower-middle-income
+Liberia,658,62,Africa,Low-income
+Libya,12686,75,Eastern Mediterranean,Upper-middle-income
+Lithuania,21588,74,Europe,Upper-middle-income
+Luxembourg,77499,82,Europe,High-income
+FYR Macedonia,10442,76,Europe,Upper-middle-income
+Madagascar,957,64,Africa,Low-income
+Malawi,848,59,Africa,Low-income
+Malaysia,16862,74,Western Pacific,Upper-middle-income
+Maldives,8856,77,South-East Asia,Lower-middle-income
+Mali,1102,57,Africa,Low-income
+Malta,26821,81,Europe,High-income
+Marshall Islands,8924,70,Western Pacific,Lower-middle-income
+Mauritania,2098,63,Africa,Low-income
+Mauritius,15423,74,Africa,Upper-middle-income
+Mexico,15344,76,Americas,Upper-middle-income
+Micronesia,7123,69,Western Pacific,Lower-middle-income
+Moldova,3381,71,Europe,Lower-middle-income
+Mongolia,5298,67,Western Pacific,Lower-middle-income
+Montenegro,11377,76,Europe,Upper-middle-income
+Morocco,5193,71,Eastern Mediterranean,Lower-middle-income
+Mozambique,1027,53,Africa,Low-income
+Myanmar,1626,66,South-East Asia,Low-income
+Namibia,7800,67,Africa,Upper-middle-income
+Nepal,1457,68,South-East Asia,Low-income
+Netherlands,41527,81,Europe,High-income
+New Zealand,29609,82,Western Pacific,High-income
+Nicaragua,4352,73,Americas,Lower-middle-income
+Niger,813,59,Africa,Low-income
+Nigeria,2697,54,Africa,Lower-middle-income
+Norway,54343,82,Europe,High-income
+Oman,28843,76,Eastern Mediterranean,High-income
+Pakistan,3056,65,Eastern Mediterranean,Lower-middle-income
+Palau,23264,73,Western Pacific,Upper-middle-income
+Panama,15468,77,Americas,Upper-middle-income
+Papua New Guinea,2736,62,Western Pacific,Lower-middle-income
+Paraguay,6053,75,Americas,Lower-middle-income
+Peru,10596,77,Americas,Upper-middle-income
+Philippines,4380,69,Western Pacific,Lower-middle-income
+Poland,20577,77,Europe,Upper-middle-income
+Portugal,23059,81,Europe,High-income
+Qatar,100889,79,Eastern Mediterranean,High-income
+Romania,12722,74,Europe,Upper-middle-income
+Russia,17386,69,Europe,Upper-middle-income
+Rwanda,1473,65,Africa,Low-income
+Samoa,6160,73,Western Pacific,Lower-middle-income
+Sao Tome and Principe,2121,67,Africa,Lower-middle-income
+Saudi Arabia,30465,76,Eastern Mediterranean,High-income
+Senegal,1908,64,Africa,Low-income
+Serbia,10835,75,Europe,Upper-middle-income
+Seychelles,25491,74,Africa,Upper-middle-income
+Sierra Leone,1333,46,Africa,Low-income
+Singapore,62130,83,Western Pacific,High-income
+Slovak Republic,24042,76,Europe,High-income
+Slovenia,27837,80,Europe,High-income
+Solomon Islands,3383,69,Western Pacific,Lower-middle-income
+South Africa,11033,59,Africa,Upper-middle-income
+South Sudan,1120,55,Eastern Mediterranean,Low-income
+Spain,29670,82,Europe,High-income
+Sri Lanka,6043,75,South-East Asia,Lower-middle-income
+St. Kitts and Nevis,15418,74,Americas,Upper-middle-income
+St. Lucia,12816,75,Americas,Upper-middle-income
+St. Vincent and the Grenadines,11785,74,Americas,Upper-middle-income
+Sudan,2573,63,Eastern Mediterranean,Lower-middle-income
+Suriname,12472,77,Americas,Upper-middle-income
+Swaziland,6031,54,Africa,Lower-middle-income
+Sweden,40294,82,Europe,High-income
+Switzerland,45128,83,Europe,High-income
+Tajikistan,2205,68,Europe,Low-income
+Tanzania,1627,61,Africa,Low-income
+Thailand,9503,75,South-East Asia,Lower-middle-income
+Timor-Leste,20301,66,South-East Asia,Lower-middle-income
+Togo,1038,58,Africa,Low-income
+Tonga,7987,71,Western Pacific,Lower-middle-income
+Trinidad and Tobago,19911,70,Americas,High-income
+Tunisia,9650,76,Eastern Mediterranean,Lower-middle-income
+Turkey,14812,75,Europe,Upper-middle-income
+Turkmenistan,8641,63,Europe,Lower-middle-income
+Tuvalu,3443,68,Western Pacific,Upper-middle-income
+Uganda,1424,57,Africa,Low-income
+Ukraine,7296,71,Europe,Lower-middle-income
+United Arab Emirates,29176,76,Eastern Mediterranean,High-income
+United Kingdom,36334,81,Europe,High-income
+United States,51709,79,Americas,High-income
+Uruguay,15865,77,Americas,Upper-middle-income
+Uzbekistan,3488,69,Europe,Low-income
+Vanuatu,4810,72,Western Pacific,Lower-middle-income
+Venezuela,13480,76,Americas,Upper-middle-income
+Vietnam,3788,76,Western Pacific,Low-income
+Yemen,2251,64,Eastern Mediterranean,Low-income
+Zambia,1683,57,Africa,Low-income
+Zimbabwe,762,58,Africa,Low-income
