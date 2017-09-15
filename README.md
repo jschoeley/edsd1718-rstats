@@ -24,3 +24,8 @@ Course structure
 - Wed Sep 20, 14-16: Optimization and model fitting
 - Thu Sep 21, 14-16: Simulation
 - Fri Sep 22, 14-16: Matrix operations
+
+Assignments
+-----------
+
+- [**Assignment 1**](https://github.com/jschoeley/edsd1718-rstats/tree/master/assignment1/assignment1.pdf) due Sunday, September 17.

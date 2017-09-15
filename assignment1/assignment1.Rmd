@@ -1,0 +1,41 @@
+---
+title: "Assignment 1"
+author: "Jonas Schöley"
+date: "September 13, 2017"
+output:
+  github_document:
+    toc: no
+  pdf_document:
+    toc: no
+references:
+- ISBN: 1-55786-451-9
+  author:
+  - family: Preston
+    given: Samuel
+  id: preston2001
+  issue: 4
+  issued:
+    year: 2001
+  publisher: Blackwell Publishers
+  title: Demography. Measuring and Modeling Population Processes.
+  type: book
+---
+
+1. Register at http://www.mortality.org/.
+2. Download single year, single period death counts and exposures for a country of your choice.
+3. *For each year in the data*, calculate life expectancy at birth^[See @preston2001 [p. 49, Box 3.1]] and the coefficient of variation of the life-table distribution of deaths.
+
+You can calculate the coefficient of variation for a life-table as
+
+$$
+\widehat{\text{CV}} = \frac {\sqrt{\sum_{x=0}^\omega {}_nd_x(\overline{x}-e_0)^2}} {e_0} = \frac {\sqrt{\sum_{x=0}^\omega {}_nd_x(x+{}_na_x-e_0)^2}} {e_0},
+$$
+
+with ${}_na_x \approx 0.5n_x$.
+
+(Bored? How about fitting a spline to the $\ell_x$ values of the life-table using `splinefun()` and use the continuous formula 7 with the fitted spline and numerical integration (`integrate()`) to calculate the Gini coefficient? No pressure though.)
+
+4. Show the relationship among life-expectancy and the coefficient of variation of the life-table distribution of deaths. What do you see? If you have an explanation for the relationship I would be interested in reading about it.
+
+References
+----------
