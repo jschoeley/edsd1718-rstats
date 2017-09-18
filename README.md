@@ -21,7 +21,7 @@ Course structure
 - Fri Sep 15, 10-12: [**Functions and control flow**](https://github.com/jschoeley/edsd1718-rstats/tree/master/03-functions_and_control_flow)
     - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/03-functions_and_control_flow/03-functions_and_control_flow.pdf), [Self study material 1](https://github.com/jschoeley/edsd1718-rstats/blob/master/03-functions_and_control_flow/extended_notes/ControlStructures.pdf), [Self study material 2](https://github.com/jschoeley/edsd1718-rstats/blob/master/03-functions_and_control_flow/extended_notes/WriteFunctions.pdf)
 - Mon Sep 18, 14-16: [**Data visualization**](https://github.com/jschoeley/edsd1718-rstats/tree/master/04-data_visualization)
-    - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/04-data_visualization/01-ggplot-the_basics.pdf)
+    - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/04-data_visualization/01-ggplot-the_basics.pdf), [Self study material](http://r4ds.had.co.nz/data-visualisation.html)
 - Tue Sep 19, 14-16: Data transformation
 - Wed Sep 20, 14-16: Optimization and model fitting
 - Thu Sep 21, 14-16: Simulation
