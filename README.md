@@ -24,7 +24,7 @@ Course structure
         - [swe_dxnx.txt](https://raw.githubusercontent.com/jschoeley/edsd1718-rstats/master/02-data_structures/swe_dxnx.txt)
     - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/02-data_structures/extended_notes/02-data_structures.pdf)
         - [deathsAustria.txt](https://raw.githubusercontent.com/jschoeley/edsd1718-rstats/master/02-data_structures/extended_notes/deathsAustria.txt)
-        - [popAustria.txt](https://github.com/jschoeley/edsd1718-rstats/blob/master/02-data_structures/extended_notes/popAustria.txt)
+        - [popAustria.txt](https://raw.githubusercontent.com/jschoeley/edsd1718-rstats/master/02-data_structures/extended_notes/popAustria.txt)
 - Fri Sep 15, 10-12: [**Functions and control flow**](https://github.com/jschoeley/edsd1718-rstats/tree/master/03-functions_and_control_flow)
     - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/03-functions_and_control_flow/03-functions_and_control_flow.pdf)
     - [Self study material (control flow)](https://github.com/jschoeley/edsd1718-rstats/blob/master/03-functions_and_control_flow/extended_notes/ControlStructures.pdf)
