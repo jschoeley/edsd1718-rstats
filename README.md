@@ -47,7 +47,7 @@ Course structure
     - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/04-data_visualization/01-ggplot-the_basics.pdf)
     - [Self study material](http://r4ds.had.co.nz/data-visualisation.html)
 - Tue Sep 19, 14-16: [**Data transformation**](https://github.com/jschoeley/edsd1718-rstats/tree/master/05-data_transformation)
-    - [Lecture script](https://github.com/jschoeley/edsd1718-rstats/blob/master/05-data_transformation/05-data_transformation.pdf)
+    - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/05-data_transformation/05-data_transformation.pdf)
     - [Self study material (data transformation)](http://r4ds.had.co.nz/transform.html)
     - [Self study material (tidy data)](http://r4ds.had.co.nz/tidy-data.html)
 - Wed Sep 20, 14-16: [**Optimization and model fitting**](https://github.com/jschoeley/edsd1718-rstats/tree/master/06-optimization_and_model_fitting)
