@@ -50,9 +50,12 @@ Course structure
     - [Lecture script](https://github.com/jschoeley/edsd1718-rstats/blob/master/05-data_transformation/05-data_transformation.pdf)
     - [Self study material (data transformation)](http://r4ds.had.co.nz/transform.html)
     - [Self study material (tidy data)](http://r4ds.had.co.nz/tidy-data.html)
-- Wed Sep 20, 14-16: Optimization and model fitting
-- Thu Sep 21, 14-16: Simulation
-- Fri Sep 22, 14-16: Matrix operations
+- Wed Sep 20, 14-16: [**Optimization and model fitting**](https://github.com/jschoeley/edsd1718-rstats/tree/master/06-optimization_and_model_fitting)
+    - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/06-optimization_and_model_fitting/extended_notes/06-optimization.pdf)
+- Thu Sep 21, 14-16: [**Simulation**](https://github.com/jschoeley/edsd1718-rstats/tree/master/07-simulation)
+    - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/07-simulation/extended_notes/07-simulation.pdf)
+- Fri Sep 22, 14-16: [**Matrix Algebra**](https://github.com/jschoeley/edsd1718-rstats/tree/master/08-matrix_algebra)
+    - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/08-matrix_algebra/08-matrix_algebra.pdf)
 
 Assignments
 -----------
