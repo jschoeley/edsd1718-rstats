@@ -1,0 +1,193 @@
+---
+title: "Data transformation"
+author: "Jonas Schöley"
+date: "September 18th, 2017"
+output:
+  github_document:
+    toc: yes
+  pdf_document:
+    toc: yes
+---
+
+Tidy data
+---------
+
+```{r}
+library(tidyverse)
+```
+
+Many programming tasks become easier once the data is in a tidy format. But what is tidy data? Our working definition: **data needs to be a data frame** and **every variable of interest needs to be a separate column**. Let's explore what that means.
+
+```{r}
+head(WorldPhones)
+```
+
+Here's the number of telephone connections over time by continent. The data is not *tidy* because its not a *data frame*, it's a matrix with row and column names. This gives us headaches if we want to use ggplot to plot the data.
+
+```{r error=TRUE}
+ggplot(WorldPhones)
+```
+
+We can easily fix this problem by converting the matrix to a data frame.
+
+```{r}
+phones <- as.data.frame(WorldPhones)
+```
+
+Say we we want to plot the number of telephone connections over time by continent. This implies the following *variables of interest*:
+
+    * the number of telephone connections `n`
+    * the continent `cont`
+    * the year `year`
+
+Problem is, *none* of these variables are explicitly given in our data frame. Of course the data is all there, just not in a format we can use (with ggplot). So the question is how to reshape the data into a form where all the variables of interest are separate columns in the data frame.
+
+To reshape we are going to use the libraries [dplyr](https://cran.rstudio.com/web/packages/dplyr/vignettes/introduction.html) and [tidyr](https://cran.r-project.org/web/packages/tidyr/vignettes/tidy-data.html). Both are loaded when you load `library(tidyverse)`.
+
+The easiest variable to make explicit is the year. It is given as rownames of the data frame. We take the rownames, convert them from character to integer type, and add them as the variable `year` to the data frame. We use the `tidyverse` function `mutate()` to add a new variable to a data frame.
+
+```{r}
+phones <- mutate(phones, year = as.integer(rownames(phones)))
+phones
+```
+
+That leaves us with the variables *"number of telephone connections"* and *"continent"* to make explicit. They shall become separate columns in the data frame. With the help of `gather()` we **transform from wide to long format**.
+
+```{r}
+phones <- gather(phones, key = cont, value = n, -year)
+phones
+```
+
+What kind of black magic did just happen? **A short primer on wide versus long data format**:
+
+Each table has a *wide format* and a long format representation. The information content is the same in both formats. It's the layout that differs.
+
+Here's a wide format table containing the explicit variables `Female` and `Male`.
+
+```{r}
+wide <- data_frame(group = c("a", "b"), Female = 1:2, Male = 3:4)
+```
+
+The same table in long format representation containing the explicit variables `Sex` and `N`.
+
+```{r}
+long <- gather(wide, key = Sex, value = N, -group)
+long
+```
+
+If we want to go back to a wide format we can achieve that by using the function `spread()`.
+
+```{r}
+spread(long, key = Sex, value = N)
+```
+
+Back to our telephone example. We told the computer to look at all columns apart from `year` and transform them into the columns `cont` and `n`. `cont` holds the continent names for the variable `n`, the number of telephone connections. The continent names are taken from the original column names we *gathered* over. We now can plot our data easily.
+
+```{r}
+ggplot(phones) +
+  geom_line(aes(x = year, y = n, colour = cont))
+```
+
+Data pipelines
+--------------
+
+We can also write everything we did so far as a single *data analysis pipeline*. We start with the raw data and output a plot. This is a great approach for fast, interactive data analysis.
+
+This is what we need to know in order to build pipelines:
+
+* The object on the left of the pipe operator (`%>%`) is passed onto the first argument of the function on the right
+* If we want to use the object on the left in other places than the first argument we can explicitly refer to it by using a dot (`.`)
+
+Here's our telephone example in pipeline form.
+
+```{r}
+# the raw data...
+WorldPhones %>%
+  # ...is converted to a data frame...
+  as.data.frame() %>%
+  # ...the rownames are added as the column `year`...
+  # (note that I use the dot here to explicitly refer to the input data)
+  mutate(year = as.integer(rownames(.))) %>%
+  # ...the data gets transformed from wide to long format...
+  gather(key = cont, value = n, -year) %>%
+  # ...and finally plotted
+  # (note that I can pipe the tidy data frame directly into ggplot)
+  ggplot() +
+  geom_line(aes(x = year, y = n, colour = cont))
+```
+
+Group wise operations
+---------------------
+
+A common data transformation task is to apply the same operation to different groups of the data set and to combine the results. This is easily achieved once the data is *tidy*.
+
+### Group wise summary statistics
+
+```{r}
+load('hmd_lt.RData')
+head(hmd_lt)
+```
+
+Say we have a collection of life-tables by country, sex, and year and we want to calculate the coefficient of variation for the life-table distribution of deaths. In other words we want to
+
+1. group our data into subgroups defined by the values of country, sex and year (so a single sub-group may be Danish females in 2010)
+2. extract total life-expectancy from each sub-group life-table
+3. calculate the coefficient of variation for each sub-group
+4. Re-combine the results of 2 and 3 into a data frame with columns identifying the sub-groups
+
+All of the above is achieved by the data pipeline below.
+
+```{r}
+hmd_lt %>%
+  group_by(cntry, sex, Year) %>%
+  summarise(
+    e0 = first(ex),
+    cv = sqrt(sum(dx*(Age+ax-e0)^2)) / e0
+  ) %>% ungroup()
+```
+
+We use the `group_by()` function to group our data into sub-groups, then we use the `summarise()` command to calculate the "summary statistics" for each sub-group. The `ungroup()` function in the end is optional but its good practive to ungroup after you're done with the group-wise operations.
+
+Let's plot the results (for a subset of all countries):
+
+```{r}
+hmd_lt %>%
+  group_by(cntry, sex, Year) %>%
+  summarise(
+    e0 = first(ex),
+    cv = sqrt(sum(dx*(Age+ax-e0)^2)) / e0
+  ) %>% ungroup() %>%
+  filter(cntry %in% c('SWE', 'RUS', 'ITA', 'DNK', 'USA', 'ESP')) %>%
+  ggplot() +
+  geom_path(aes(x = e0, y = cv, color = sex)) +
+  facet_wrap(~cntry, scales = 'free')
+```
+
+### Group wise column operations
+
+If, instead of summarising the data for each group in some form, we want to transform some columns in the data frame on a group-by-group basis we can use the `group_by()` together with `mutate()`.
+
+Biologists sometimes express age not in years but in shares of total life-expectancy, i.e. the age of quarter life-expectancy, the age of half life-expectancy... Let's add this *relative* age to each life-table in the data. We need to
+
+1. group our data into sub-groups defined by the values of country, sex and year
+2. for each sub-group add a new column "relative age" to the life-table calculated as age over total life-expectancy
+3. Re-combine the results of 2 into a data frame with columns identifying the sub-groups
+
+```{r}
+hmd_lt %>%
+  group_by(cntry, sex, Year) %>%
+  mutate(relAge = Age / ex[1])
+```
+
+Let's plot the life-table survivor function over relative age by sex for Sweden across periods.
+
+```{r}
+hmd_lt %>%
+  group_by(cntry, sex, Year) %>%
+  mutate(relAge = Age / ex[1]) %>%
+  ungroup() %>%
+  filter(cntry == 'SWE') %>%
+  ggplot() +
+  geom_line(aes(x = relAge, y = lx, group = Year, color = Year)) +
+  facet_wrap(~sex)
+```
