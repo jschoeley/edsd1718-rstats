@@ -16,6 +16,8 @@ Course structure
 - Mon Sep 11, 14-16: [**Basic R**](https://github.com/jschoeley/edsd1718-rstats/tree/master/01-the_basics)
     - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/01-the_basics/01-the_basics-lecture_code.pdf)
     - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/01-the_basics/extended_notes/01-the_basics.pdf)
+        - [GDPe02012.txt](https://raw.githubusercontent.com/jschoeley/edsd1718-rstats/master/01-the_basics/extended_notes/GDPe02012.txt)
+        - [swed_kaza.txt](https://raw.githubusercontent.com/jschoeley/edsd1718-rstats/master/01-the_basics/extended_notes/swed_kaza.txt)
     - [Introduction to R Markdown](http://rmarkdown.rstudio.com/lesson-1.html)
 - Wed Sep 13, 10-12: [**Data structures**](https://github.com/jschoeley/edsd1718-rstats/tree/master/02-data_structures)
     - [Lecture skript](https://github.com/jschoeley/edsd1718-rstats/blob/master/02-data_structures/02-data_structures-lecture_code.pdf)
