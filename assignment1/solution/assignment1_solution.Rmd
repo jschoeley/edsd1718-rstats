@@ -1,0 +1,165 @@
+---
+title: "Solution assignment 1"
+author: "Jonas Schöley"
+date: "September 19, 2017"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+usr <- '***'; pwd <- '***'
+```
+
+First we need some data. We can go to http://www.mortality.org to download the data manually or use the `HMDHFDplus` package to download the data from within R. Here I choose to use the package. Before we can load the package via `library(HMDHFDplus)` we need to install it by running `install.packages('HMDHFDplus')`.
+
+We use the function `readHMDweb()` to download time series of death counts and exposures for Sweden. You need to specify your own HMD username and password to the function.
+
+```{r}
+library(HMDHFDplus)
+# http://www.mortality.org/hmd/SWE/STATS/Deaths_1x1.txt
+deaths <- readHMDweb(CNTRY = 'SWE', item = 'Deaths_1x1',
+                     username = usr, password = pwd)
+str(deaths)
+# http://www.mortality.org/hmd/SWE/STATS/Exposures_1x1.txt
+exposures <- readHMDweb(CNTRY = 'SWE', item = 'Exposures_1x1',
+                        username = usr, password = pwd)
+str(exposures)
+```
+
+Both data series have exactly the same format: 6 variables, 29,304 rows, ages 0 to 110+ for years 1751 to 2014. This consistency makes it really easy to transform the data frame to a matrix. But why would we want to do so? Matrices with ages as rows and periods as columns are a convenient structure to store time series of life-table data. Calculating statistics for each year simply requires to loop over the columns of such a matrix.
+
+```{r}
+years <- unique(deaths$Year) # labels for the years
+ages <- 0:110 # labels for the age groups
+w <- length(ages) # number of age groups
+
+# create age-period matrices of death counts and exposures
+D <- matrix(deaths$Total, nrow = w, dimnames = list(ages, years))
+E <- matrix(exposures$Total, nrow = w, dimnames = list(ages, years))
+```
+
+The highest age group in our data is 110+. This makes sense for today's life-tables but historically the maximum age at death in any given year was often considerably lower. In consequence we have exposures and death counts of 0 in the highest ages for some years. Here's an example for the year 1800.
+
+```{r}
+D[90:111, '1800']
+E[90:111, '1800']
+```
+
+Zero exposures will cause all kinds of headaches when constructing a life-table. One technique to deal with this issue is to aggregate deaths and exposures over the highest ages, i.e. instead of an age group 110+ we can have 100+ as the last age group.
+
+```{r}
+# sum up deaths and exposures past age 100
+D100p <- colSums(D[101:w,])
+E100p <- colSums(E[101:w,])
+
+# remove single ages 100 and beyond from exposure and death matrices
+D <- D[-(101:w),]
+E <- E[-(101:w),]
+
+# add open age group 100+ to exposure and death matrices
+D <- rbind(D, D100p)
+E <- rbind(E, E100p)
+```
+
+What we have now is age-period matrices of death counts and exposures over ages 0 to 100+. We calculate the age and period specific mortality rates (mortality rate matrix M) by dividing deaths by exposures.
+
+```{r}
+M <- D/E
+```
+
+Now it's time to write a function calculating life-expectancy and the coefficient of variation for the life-table death distribution. Concerning the life-table construction we follow Preston (2001), p. 49, Box 3.1. As the coefficient of variation for the life-table death distribution depends on life-table statistics, we calculate it inside of our life-table function.
+
+```{r}
+LTFun <- function (x, nmx) {
+  # clear names of input vectors
+  names(nmx) <- NULL; names(x) <- NULL
+  
+  # number of age groups
+  w <- length(x)
+  # width of age groups
+  nx <- c(diff(x), NA)
+  # time spent in age group if dying in age group
+  nax <- 0.5*nx
+  nax[w] <- 1/nmx[w]
+  # probability of dying in age group given
+  # survival until start of age group
+  nqx = nx*nmx / (1 + (nx-nax)*nmx)
+  nqx[length(nqx)] <- 1
+  # probability of surviving age group given
+  # survival until start of age group
+  npx <- 1 - nqx
+  # probability of surviving until start
+  # of age group
+  lx <- cumprod(c(1, npx[-w]))
+  # unconditional probability of dying in
+  # age group
+  ndx <- c(-diff(lx), lx[w])
+  # total exposure time spend in age group
+  # by life-table population
+  nLx <- c(lx[-1], 0)*nx + ndx*nax
+  nLx[w] <- nax[w]*lx[w]
+  # total exposure time yet to live by life-table
+  # population
+  Tx <- rev(cumsum(rev(nLx)))
+  # remaining life-expectancy past age x
+  ex <- Tx/lx
+  
+  # total life-expectancy
+  e0 <- ex[1]
+  # coefficient of variation of life-table
+  # distribution of deaths
+  cv <- sqrt(sum(ndx*(x+nax-e0)^2)) / e0
+  
+  # function output
+  list(
+    lt = data.frame(x, nx, nmx, nax, nqx, npx, lx, ndx, nLx, Tx, ex),
+    lt_summary = c(e0 = e0, cv = cv)
+  )
+}
+```
+
+We can test this function on the first year in our data.
+
+```{r}
+LTFun(0:100, M[,1])
+```
+
+Now we need to apply the `LTFun()` to every year in our data, i.e. to every column of our matrix `M`. We start by preparing an empty list with 264 entries -- one entry for each year in our data set. This list is where we will store the output of the life-table function for each year.
+
+```{r}
+# number of years
+k <- length(years)
+
+lts <- vector(mode = 'list', length = k)
+```
+
+Next, we use a for-loop to iterate over all the different columns in our matrix `M`. For each column we apply the `LTFun()` and store its output in the corresponding entry of `lts`.
+
+```{r}
+for (i in 1:k) {
+  lts[[i]] <- LTFun(x = 0:100, nmx = M[,i])
+}
+```
+
+What we now have is a list 264 entries, each entry featuring a life-table and some life-table summary statistics. We can use the function `sapply()` to go over each entry of the list and extract the total life-expectancy and the CV. You could achieve the same by writing another for loop.
+
+```{r}
+e0 <- vector(mode = 'numeric', length = k)
+for (i in 1:k) {
+  e0[i] <- lts[[i]]$lt_summary['e0']
+}
+cv <- vector(mode = 'numeric', length = k)
+for (i in 1:k) {
+  cv[i] <- lts[[i]]$lt_summary['cv']
+}
+```
+
+```{r}
+plot(e0, cv)
+```
+
+
+Literature
+----------
+
+Preston, S. H., Heuveline, P., & Guillot, M. (2001). Demography. Oxford, UK: Blackwell.
