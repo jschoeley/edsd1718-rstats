@@ -1,0 +1,1056 @@
+\documentclass{article}
+
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{ pdfstartview={XYZ null null 1}}
+
+
+\usepackage[a4paper,
+            left=2.3cm,
+            right=2.3cm,
+            bottom=2.3cm,
+            top=2.8cm,
+            footskip=32pt]{geometry}   
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{rotating}
+\usepackage[sort]{natbib} 
+\usepackage{amsmath, amssymb, bm}  
+\usepackage{fancybox} 
+
+\newcommand{\andd}{\texttt{\&}}  
+\newcommand{\aandd}{\texttt{\&\&}}  
+\newcommand{\orr}{\texttt{|}}  
+\newcommand{\oorr}{\orr\orr}  
+\newcommand{\bsl}{$\backslash$}  
+\newcommand{\R}{\texttt{R} }
+
+\pagestyle{fancy} 
+\lhead{\textsl{R Programming: Module 6}} 
+\rhead{\includegraphics[width=1.8cm]{EDSDLogoLarge.jpg} \textsl{EDSD 2017/18}}
+
+
+\begin{document}
+%\SweaveOpts{concordance=TRUE}
+% Rscript -e "library(knitr); knit('./filename.Rnw')"
+% pdflatex filename.tex
+%<<setup, include=FALSE, cache=FALSE>>=
+%library(knitr)
+%# set global chunk options
+%opts_chunk$set(fig.path='figure/EDSD140mod7-', 
+%               cache.path='cache/EDSD140mod7-',
+%               fig.align='center',
+%               fig.show='hold', 
+%               fig.width=4, fig.height=4)
+%options(replace.assign=TRUE, width=50, scipen = 50, digits = 4)
+%my_pdf = function(file, width, height) {
+%  pdf(file, width = width, height = height, pointsize = 8)
+%}
+%@
+
+
+
+
+
+
+\title{\small{$\,$}\\
+  \large{\textit{R Programming for Demographers}} \\ $\,$ \\
+       \Huge{Optimization}}
+\author{Tim Riffe\footnote{First, a big thanks to Giancarlo Camarda, who has let me recycle
+his impeccable material for teaching this course. Higher order thanks are also
+due to the very same people that Giancarlo himself thanked, especially Sabine
+Zinn and Roland Rau. Sabine was my teacher in this very course in 2009 (cohort 5)!
+Part of these lectures has been freely inspired by courses that both Roland,
+Sabine, and Giancarlo taught in the past. Furthermore, in recent years,
+Adam Lenart, Fernando Colchero, and Silvia Rizzi have aided in teaching this
+course and improving handouts. On the other hand, it goes without saying that I
+am uniquely responsible for any deficiencies and mistakes you may find in
+handouts.}}
+
+\maketitle
+\thispagestyle{fancy}
+\tableofcontents
+
+
+\section{Introduction}
+
+Often demographers want to check whether a certain
+distribution (or model) is able to capture essential patterns in a given set of data. Assumptions and possible estimation are instruments that we need to handle with
+familiarity. Today's lecture deals with these concepts. 
+
+\R is very good at optimizing many functions automatically. But what
+happens if you have a function for which no maximization is built-in
+and for which an analytical maximization is too tedious or even
+impossible? For this case, \R provides the possibility to optimize your own
+function numerically. We start by demonstrating it for a simple
+case: the Maximum Likelihood Estimation (MLE) of a Binomial
+distribution. Then we move to a typical demographic example:
+estimating the Gompertz model.
+
+\section{MLE of a Binomial distribution}
+We have chosen this distribution since it is simple, and
+because you will derive the analytical outcomes during your
+basic statistics course, thus it is easy to compare results from
+\R with the analytically correct ones. 
+
+\subsection{Some analytical results}
+Let's assume that $X$ has a Binomial distribution, $X\sim
+Bin(n,p)$: 
+$$
+B(n,p) = B_{n,p} \left(X = x\right) = {n \choose x} p^x
+\left(1-p\right)^{n-x} \,.  
+$$
+
+The associated likelihood function can be written as:
+\begin{equation*}
+L(p | x) = {n\choose x} p^{x} (1 - p)^{n-x}
+\end{equation*}
+To maximize this function it is more convenient to consider the
+log-likelihood:
+$$
+\mathcal{L}(p | x) \;=\; ln \left[ L(p | x) \right] \; \propto \; x\,
+\ln(p) + (n-x) \, \ln(1-p)
+$$
+In a nutshell, given a certain value of $x$ (and $n$), the aim is to
+find the parameter $p$ which maximizes $\mathcal{L}$.
+
+An advantage of logging is that multiplication is
+transformed to summation on the log-scale for which derivatives are
+easier. Moreover, in general, multiplication is computationally more
+expensive than addition, and logging improves numerical
+stability.  
+
+Analytically we can derive the function with respect to
+$p$:\label{Der1bin.like} 
+$$
+\frac{d}{d \, p} \, \mathcal{L}(p | x) = \frac{x}{p} -
+\frac{n-x}{1-p} 
+$$
+set it equal to zero and find out that the fitted parameter
+$\hat{p}$ is: 
+$$
+\hat{p} = \frac{x}{n}
+$$
+
+As illustrative example, our data shows that 13 out of 50 individuals
+are smokers. Assuming a binomial distribution, what is the most
+plausible probability of being smokers in the population? 
+$$
+\hat{p} = \frac{13}{50} = 0.26
+$$ 
+
+\subsection{Graphical view}
+We can use the likelihood function to look at the plausibility of
+different values of $p$ to see which one is the most likely. In
+\R, firstly we build up the function we would like to plot
+(and later on maximize). This function depends on three arguments
+$p$, $x$ and $n$:  
+<<>>=
+loglike.bin <- function(p, x, n){
+  loglike <- x * log(p) + (n-x) * log(1 - p)
+  return(loglike)
+}
+@
+In order to have a graphical view of $\mathcal{L}$ we fix in the
+function $x=13$ and $n=50$ and we compute \texttt{loglike.bin()} for
+different values of $p$ which are defined between 0 and 1: 
+<<>>=
+my.p <- seq(0, 1, length=1000)
+my.loglike <- loglike.bin(my.p, x=13, n=50)
+@
+and then we plot the plausible $p$ against their ``plausibility'': 
+<<>>=
+plot(my.p, my.loglike, t="l")
+@ 
+\begin{figure}
+\begin{center}
+<<echo=FALSE>>=
+plot(my.p, my.loglike, t="l")
+@ 
+\end{center}
+\caption{Log-likelihood function of a Binomial distribution with
+  $x=13$ and $n=50$} \label{fig:loglikebin} 
+\end{figure}
+
+At a glance, Figure \ref{fig:loglikebin} shows that a value about of
+$p=0.26$ maximizes the log-likelihood. We can see this result as
+follows: 
+<<>>=
+my.p[my.loglike==max(my.loglike)] # or my.p[which.max(my.loglike)]
+@ 
+by picking the value of \texttt{my.p} at which the vector
+\texttt{my.loglike} maximizes. 
+
+In this case we obtain values of the likelihood function
+that correspond to each \texttt{my.p} in a single vector. This is possible only
+because the further arguments (\texttt{x} and \texttt{n}) are simple
+scalars. Moreover the precision of $\hat{p}$ in this graphical
+approach heavily depends upon the fineness of the grid in
+\texttt{my.p}, i.e.~the finer the grid in \texttt{my.p}, the more
+precise the estimation
+
+A different perspective on the log-likelihood profile could be given by
+plotting its first derivative with respect to the parameter $p$. This
+function should cross 0 at the maximum likelihood estimator
+$\hat{p}=0.26$. We have already presented the derivative of the
+log-likelihood, which in \R could be: 
+<<>>=
+loglike1.bin <- function(p, x, n){
+  loglike1 <- x / p - (n - x) / (1 - p)
+  return(loglike1)
+}
+@ 
+
+We now evaluate this function for all the elements in \texttt{my.p} 
+<<>>=
+my.loglike1 <- loglike1.bin(my.p, x = 13, n = 50)
+@ 
+and we plot the profile of derivative of the likelihood function as follows:
+%<<>>=
+%plot(my.p, my.loglike1, t="l", xlim=c(.1,.8), ylim=c(-100,100))
+%abline(h=0)
+%abline(v=0.26)
+%@ 
+We restricted the limits of the axes (Figure~\ref{fig:loglikebinGR})
+for better focusing about the MLE $\hat{p}$. 
+
+\begin{figure}
+\begin{center}
+<<echo=FALSE>>=
+plot(my.p, my.loglike1, t="l", xlim=c(0.1, 0.8), ylim=c(-100, 100))
+abline(h=0)
+abline(v=0.26)
+@ 
+\end{center}
+\caption{First derivative of the log-likelihood function with respect
+  to the parameter $p$ of a Binomial distribution with $x=13$ and
+  $n=50$} \label{fig:loglikebinGR}  
+\end{figure}
+
+\subsection{Using an \R optimizer}
+So far we have dealt with a simple distribution with a known
+analytical solution, and with a single parameter which can be plotted
+against the log-likelihood function itself. What about a ``harder''
+distribution? 
+
+\R offers the possibility to maximize any function numerically and as
+you can imagine, the harder the function, the more tricks you may need
+to optimize it. So let's start with the known simple binomial
+distribution.  
+
+Though several commands are available for performing
+optimization, we will present
+\texttt{optim()}, probably the most 
+flexible one. In its simplest form you just have to ''feed`` a
+starting value for the parameter (or a set of parameters) and the
+additional arguments your objective function may need.   
+
+Let's assume as a starting value the middle of all possible $p$:
+0.5. Obviously a wiser choice would be needed for more complex
+optimization problems. Then we simply use this command: 
+<<warning=FALSE>>=
+optim(par=0.5, fn=loglike.bin, x=13, n=50)
+@
+
+You see in the first entry of the output (\texttt{\$par}, which stands
+for the optimal/estimated parameter), that \R did not find
+the correct result of $\hat{p}=0.26$. Actually the optimal value is
+equal to one. This gives you a first
+indication, that numerical optimization is sometimes (very often?) a tricky
+business. If you read the help page of \texttt{optim()}, you might
+quickly recognize one possible problem. In the section ``Details'' it
+mentions: 
+<<eval=FALSE>>=
+"By default this function performs minimization ..."
+@ 
+
+The problem with the log-likelihood function above was therefore that
+\R was ``walking'' into 1, where it actually has its minimum (see
+Fig.~\ref{fig:loglikebin}).  
+
+We could get the right behavior by using some other optional arguments to \texttt{optim()},
+or, more intuitively, modify \texttt{loglike.bin()}: maximizing a
+function is equivalent to minimizing the negative of the function
+itself. Therefore we add a \texttt{-} sign in front of the final
+return object:
+<<>>=
+loglike.bin <- function(p, x, n){
+    loglike <- - (x * log(p) + (n-x) * log(1 - p))
+    return(loglike)
+}
+@
+Now we try again with \texttt{optim()}:
+<<>>=
+optim(par=0.5, fn=loglike.bin, x=13, n=50)
+@
+
+So, \R is successfully finding the maximum. Nevertheless we
+should acknowledge the fact that \R warns us every time in the 
+last line of the output that the default setting of \texttt{optim()} has
+problems with optimizing. Such warning can depend on the \R version
+you are running on your own machine. For this case it can appear
+something like: 
+\begin{verbatim}
+Warning: one-dimensional optimization by Nelder-Mead is unreliable:
+use "Brent" or optimize() directly
+\end{verbatim}
+
+Instead of changing the optimizer
+(\texttt{optimize()}), we follow
+the other approach. The warning informs that the default
+\texttt{Nelder-Mead} method is prone to problems if the optimization
+runs over one dimension (one parameter) and it would be better to
+proceed with the method \texttt{Brent}. Additionally, from the
+documentation we can see five different optimization methods
+available:  
+\begin{itemize}
+\item Nelson-Mead
+\item BFGS
+\item CG
+\item L-BFGS-B (a generalization of BFGS for bounding the optima)
+\item SANN
+\item Brent (internally it uses \texttt{optimize()} and the user needs
+  to provide lower/upper bounds)
+\end{itemize}
+
+If you want to learn more about the internal algorithms for finding
+optima, references are provided in the help page. Here we will just
+show how simple is to change the \texttt{method} within
+\texttt{optim()}. Moreover an important feature of \R is that we can
+assign any output we have obtained from previous
+procedure to an object. The same can be done for the output of an optimization procedure. 
+
+In the following we run all possible methods and we will assign
+the results to different objects:
+<<warning=FALSE>>=
+optBFGS  <- optim(0.5, loglike.bin, x = 13, n = 50, method = "BFGS")
+optCG    <- optim(0.5, loglike.bin, x = 13, n = 50, method = "CG")
+optSANN  <- optim(0.5, loglike.bin, x = 13, n = 50, method = "SANN")
+optBrent <- optim(0.5, loglike.bin, x = 13, n = 50, method = "Brent", 
+                  lower = 0, upper = 1) 
+@ 
+
+Despite other warning messages due to computational
+problems skipped in this material\footnote{In the
+  searching procedure \texttt{optim()} is taking $p=0$ and/or $p=1$,
+  \texttt{loglike.bin()} is thus sometimes returning infinite outcomes. This issue
+  can be overcome with some tricks that go beyond the objectives of
+  this course}, we can check that all optimization methods return the
+same results by extracting the values of $\hat{p}$ which is the
+estimated parameter (i.e.~where, given our data, \texttt{loglike.bin()}
+is minimum):
+<<>>=
+c(optBFGS$par,optCG$par,optSANN$par,optBrent$par)
+@ 
+
+As with many \R-object coming from implemented functions, the output of
+\texttt{optim()} has different values. You can get their
+names with:  
+<<>>=
+names(optBFGS)
+@
+
+For instance we can check whether our optimization reached its goal by
+typing: 
+<<>>=
+optBFGS$convergence
+@ 
+From the documentation we can read that \texttt{0 indicates
+  successful completion}, so in this case we should not
+worry. Additionally the number of iterations executed by the internal
+algorithm is extracted as follows: 
+<<>>=
+optBFGS$counts[1]
+@ 
+
+Sometimes it is important to know the value of the objective function evaluated 
+in the fitted parameters. In other words $-\mathcal{L}(\hat{p} | x)$:
+<<>>=
+optBFGS$value
+@
+Of course, this value can be computed just inserting the
+\texttt{optBFGS\$par} and our data in \texttt{loglike.bin()}: 
+<<>>=
+loglike.bin(p=optBFGS$par, x=13, n=50)
+@
+
+Finally we can graphically present the outcomes of our MLE for the
+binomial distribution: we again plot the log-likelihood
+profile from \texttt{my.loglike} and then add a vertical line at
+$\hat{p}$ from \texttt{optBFGS} (see Fig.~\ref{fig:loglikebin1}):
+%<<fig.keep='none'>>=
+%plot(my.p, my.loglike, t="l")
+%abline(v=optBFGS$par)
+%@
+\begin{figure}
+\begin{center}
+<<echo=FALSE>>=
+plot(my.p, my.loglike, t="l")
+abline(v = optBFGS$par)
+@
+\caption{Log-likelihood function of a Binomial distribution with
+  $x=13$ and $n=50$. The vertical line show the MLE of
+  $p$.} \label{fig:loglikebin1}  
+\end{center}
+\end{figure}
+
+Additional to the objective function, the \R-command \texttt{optim()}
+accepts the first derivative of the objective function by the argument
+\texttt{gr} which stands for ``gradient''. By default
+finite-difference approximations are computed, alternatively we can
+provide the analytic solution of the gradient by a function. This
+would speed up and enhance the search of the optimum and it is
+possible only for the \texttt{"BFGS"}, \texttt{"CG"} and
+\texttt{"L-BFGS-B"} methods. 
+
+For the binomial example, we have already programmed the first
+derivatives of the log-likelihood function with respect to
+$p$. Nevertheless we are minimizing minus the log-likelihood,
+therefore we need to change the sign of the gradient too:
+<<>>=
+loglike1.binN <- function(p, x, n){
+  loglike1 <- -loglike1.bin(p, x, n)
+  return(loglike1)
+}
+@ 
+
+We now add this information in the optimization process:
+<<>>=
+optBFGSgr <- optim(0.5, loglike.bin, x = 13, n = 50,
+                   method = "BFGS",
+                   gr = loglike1.binN)
+optBFGSgr$par
+@ 
+
+Apparently nothing has changed, and the estimated parameters are equal
+to the previous ones. Nevertheless internally the function has found
+the minima much more easily. Let's check the number of iterations:
+<<>>=
+optBFGSgr$counts[1]
+@ 
+
+By specifying the gradient function, we reduced the number of iterations from
+\Sexpr{optBFGS$counts[1]} to \Sexpr{optBFGSgr$counts[1]}. 
+
+For the estimation of a MLE of a Binomial distribution we
+cannot appreciate the advantage of adding the gradient in
+\texttt{optim()}, the importance of this feature rises along with the
+complexity of the optimization problem at hand.  
+
+
+
+%% \subsubsection{Some analytical results}
+%% Hence let's assume that $X$ has a Binomial distribution, $X\sim Bin(n,\pi)$:
+%% $$
+%% P(X=x) = {n\choose x} \pi^{x} (1 - \pi)^{n-x}
+%% $$
+%% We know that the likelihood function is:
+%% \begin{equation*}
+%% L(\pi | x) = {n\choose x} \pi^{x} (1 - \pi)^{n-x}
+%% \end{equation*}
+%% and that the log-likelihood can be written:
+%% \begin{equation*}
+%% \mathcal{L}(\pi | x) = log L(\pi | x) \propto x log(\pi) + (n-x) log(1-\pi)
+%% \end{equation*}
+%% In a nutshell, given a certain value of $x$ (and $n$), our aim is to
+%% find the parameter $\pi$ which maximize $\mathcal{L}$.
+
+%% Analytically we can derive the function with respect to $\pi$:
+%% \begin{equation*}
+%%   \frac{\partial \mathcal{L}(\pi | x)}{\partial \pi} = \frac{x}{\pi} -
+%%   \frac{n-x}{1-\pi} 
+%% \end{equation*}
+%% set it equal to zero and find out that the fitted parameter
+%% $\hat{\pi}$ is: 
+%% $$
+%% \hat{\pi} = \frac{x}{n}
+%% $$
+
+%% For our coming example, let's suppose we toss ten coin and we get six heads,
+%% then: 
+%% $$
+%% \hat{\pi} = \frac{6}{10} = 0.6
+%% $$ 
+
+%% Another example of binomial data is given by a box with balls of 2
+%% colors (black and white). We repeatedly take a
+%% ball, check the color and put in the box again. At the end of the
+%% ``game'', after 20 trials we have 4 black balls (and consequently 16
+%% white balls). Given this information, what is the most likely proportion
+%% of black balls in the box? The answer is:
+%% $$
+%% \hat{\pi} = \frac{4}{20} = 0.2
+%% $$
+%% i.e.~the best guess is: 20\% of the balls in the box are black.
+
+%% \subsubsection{Graphical view}
+%% We can use the likelihood function to look at the plausibility of
+%% different values of $\pi$ to see which one is the most likely. In
+%% \R, firstly we build  up the function we would like to plot
+%% (and later on maximize). This function depends on three arguments
+%% $\pi$, $x$ and $n$:  
+%% <<>>=
+%% loglike.bin <- function(pi, x, n){
+%%     loglike <- x * log(pi) + (n-x) * log(1 - pi)
+%%     return(loglike)
+%% }
+%% @
+%% In order to have a graphical view of $\mathcal{L}$ we fix in the function $x=6$ and $n=10$ and
+%% we compute \texttt{loglike.bin} for different values of $\pi$:
+%% <<>>=
+%% my.pi <- seq(from=0, to=1, by=0.001)
+%% my.loglike <- loglike.bin(my.pi, x=6, n=10)
+%% @
+%% and then we plot the plausible $\pi$s against their ``plausibility'': 
+%% <<echo=TRUE, fig.keep='none'>>=
+%% plot(my.pi, my.loglike)
+%% @ 
+%% \begin{figure}
+%% \begin{center}
+%% <<echo=FALSE, dev='my_pdf', fig.ext='pdf'>>=
+%% plot(my.pi, my.loglike)
+%% @ 
+%% \end{center}
+%% \caption{Log-likelihood function of a Binomial distribution with $x=6$
+%%   and $n=10$} \label{loglikebin} 
+%% \end{figure}
+%% At glance, Figure \ref{loglikebin} shows that a value about of $\pi =
+%% 0.6$ maximizes the log-likelihood. We can see such result as follows:
+%% <<>>=
+%% my.pi[my.loglike==max(my.loglike)] # or my.pi[which.max(my.loglike)]
+%% @ 
+
+%% Note that we obtain all associated values of the likelihood function for each \texttt{my.pi}
+%% in a single line. This is possible only because the further arguments
+%% (\texttt{x} and \texttt{n}) are simple scalars.
+
+%% \subsubsection{A numerical maximization}
+%% Up to now we were dealing with a simple distribution with known
+%% analytical maximum and with a single parameter which can be plot
+%% against the function itself. What about ``harder'' distribution?
+
+%% As mentioned in the introduction \R offers the possibility to
+%% maximize any function\footnote{As you can image, the harder the
+%%   function, the more tricks you may need.} numerically. But let's try
+%% with the known simple Binomial distribution. 
+
+%% Optimization is performed by using the function
+%% \texttt{optim}\footnote{Several other optimization functions are
+%%   available within \R. For this course we will focus on
+%%   \texttt{optim} only.}. In its simplest form you just have to give a
+%% starting value for the parameter and the additional arguments your
+%% objective function may need.  
+
+%% Let's assume we are stupid and say, the starting value is 0.5. Then
+%% we simply use this command: 
+%% <<warning=FALSE>>=
+%% optim(par=0.5, fn=loglike.bin, x=6, n=10)
+%% @
+
+%% You see in the first entry of the output (\texttt{\$par}, which stands
+%% for the optimal/estimated parameter), that \R did not find
+%% the correct result of $\hat{\pi}=0.6$. Actually the optimal value is
+%% practically equal to zero. This gives you a first
+%% indication, that numerical optimization is sometimes (very often?) a tricky
+%% business. If you read the help page of \texttt{optim} via
+%% \texttt{?optim}, you might quickly recognize one possible problem.
+%% In the section ``Details'' it mentions:
+%% \begin{verbatim}
+%% By default this function performs minimization ...
+%% \end{verbatim}
+
+%% The problem with this log-likelihood function was therefore that
+%% \R was going for a ``walk'' into 0, where it actually has its
+%% minimum. 
+
+%% To avoid such problem we simply change the function since maximizing a
+%% function is equivalent to minimizing the negative of the function:
+%% <<>>=
+%% loglike.bin <- function(pi, x, n){
+%%     loglike <- - (x * log(pi) + (n-x) * log(1 - pi))
+%%     return(loglike)
+%% }
+%% @
+%% Now we try again:
+%% <<>>=
+%% optim(par=0.5, fn=loglike.bin, x=6, n=10)
+%% @
+
+%% So, \R is successfully finding the maximum. Nevertheless we
+%% should acknowledge the fact that \R warns us every time in the 
+%% last line of the output that the default setting of \texttt{optim} has
+%% problems with optimizing. Such warning can depend on the \R version
+%% you are running on your own machine. For this case it can appear
+%% something like: 
+%% \begin{verbatim}
+%% Warning: one-dimensional optimization by Nelder-Mead is unreliable:
+%% use "Brent" or optimize() directly
+%% \end{verbatim}
+
+%% Instead of changing the optimizer (\texttt{optimize}), we follow the
+%% other approach.
+%% The warning tells you in the last line that the default
+%% \texttt{Nelder-Mead} method is prone for problems if it is optimizing
+%% only in one dimension (one parameter). What we can do know is to
+%% change the default method to another one.  As the help page tells you
+%% (\texttt{?optim}), there are five different optimization methods available. 
+%% \begin{itemize}
+%% \item Nelson-Mead
+%% \item BFGS
+%% \item CG
+%% \item L-BFGS-B (a generalization of BFGS for bounding the optima)
+%% \item SANN
+%% \item Brent (internally it uses \texttt{optimize} and the user needs
+%%   to provide lower/upper bounds)
+%% \end{itemize}
+
+%% If you want to learn more about the actual algorithms to find optima,
+%% have a look at the references given on the help page or have a look at
+%% the page of ``Numerical Recipes'' where you can find descriptions of
+%% algorithms and their implementations in \texttt{Fortran} and
+%% \texttt{C}. The URL is: \url{http://www.nr.com/}\footnote{Note: All
+%%   chapters are downloadable for free in PDF format.}. So, let's check
+%% if \R is returning the right results if we use some of these methods:
+%% <<warning=FALSE>>=
+%% optim(par = 0.5, fn = loglike.bin, x = 6,
+%%       n = 10, method = "BFGS")
+%% optim(par = 0.5, fn = loglike.bin, x = 6,
+%%       n = 10, method = "CG")
+%% optim(par = 0.5, fn = loglike.bin, x = 6,
+%%       n = 10, method = "SANN")
+%% optim(par = 0.5, fn = loglike.bin, x = 6,
+%%       n = 10, method = "Brent", lower=0, upper=1)
+%% @ 
+
+
+%% Despite other warning messages due to computational
+%% problems which do not appear in this handouts\footnote{In the searching procedure \texttt{optim} is taking
+%%   $\pi=0$ and/or $\pi=1$, in this way \texttt{loglike.bin} gives
+%%   infinity outcomes. This issue can be overcome with some tricks which
+%%   go beyond the objectives of this course.}, it seems that other optimization
+%% methods return the same results. 
+
+%% An important feature of \R is that we can save in an object
+%% any output we have obtained from previous procedure. The same can be
+%% done for an optimization procedure. Using the default method which
+%% gives the right result: 
+%% <<>>=
+%% opt.bin <- optim(par = 0.5, fn = loglike.bin, x = 6, n = 10, 
+%%                  method = "BFGS")   
+%% @
+%% As many \R-object coming from implemented function,
+%% \texttt{opt.bin} has different values inside. You can recall their
+%% names with: 
+%% <<>>=
+%% names(opt.bin)
+%% @
+%% We can be interested in the values of $\hat{\pi}$ which is the
+%% estimated parameter (i.e.~where, given our data, \texttt{loglike.bin}
+%% is minimum). Let's extract it:  
+%% <<>>=
+%% opt.bin$par
+%% @
+%% Sometimes it is important to know the value of the objective function evaluated 
+%% in the fitted parameters. In other words $-\mathcal{L}(\hat{\pi} | x)$:
+%% <<>>=
+%% opt.bin$value
+%% @
+%% Of course, this value can be computed just inserting the
+%% \texttt{opt.bin\$par} and our data in \texttt{loglike.bin}: 
+%% <<>>=
+%% loglike.bin(pi=opt.bin$par, x = 6, n = 10)
+%% @
+
+%% Finally we can graphically gives the outcomes of our MLE for the
+%% Binomial distribution.  We need to plot again the log-likelihood
+%% values (using now the negative of \texttt{loglike.bin}) for different
+%% values of $\pi$ and then add a vertical line at $\hat{\pi}$ (Figure
+%% \ref{loglikebin1}): 
+%% <<echo=TRUE, fig.keep='none'>>=
+%% my.pi <- seq(from=0, to=1, by=0.001)
+%% my.loglike <- - loglike.bin(my.pi, x=6, n=10)
+%% plot(my.pi, my.loglike)
+%% abline(v=opt.bin$par)
+%% @
+%% \begin{figure}
+%% \begin{center}
+%% <<echo=FALSE, dev='my_pdf', fig.ext='pdf'>>=
+%% plot(my.pi, my.loglike)
+%% abline(v=opt.bin$par)
+%% @
+%% \caption{Log-likelihood function of a Binomial distribution with $x=6$
+%%   and $n=10$. The vertical line show the MLE of
+%%   $\pi$.} \label{loglikebin1} 
+%% \end{center}
+%% \end{figure}
+
+
+\section{A demographic example: the Gompertz distribution}
+As already metioned, a well-known distribution in demography is the
+Gompertz distribution. In particular \citet{gompertz1825nature} showed that the
+hazard (or in demography, force of mortality) of a particular
+individual $i$, $h(x_{i})$, often follows an exponential function such as:
+$$
+h(x_{i}) = \alpha  e^{\beta x_{i}}
+$$ 
+So, given an actual distribution of independent deaths by age from a
+population ($x_{i}, i=1,\ldots, n$), and assuming that this population follows a
+Gompertz distribution, our aim is to estimate the (most likely) parameters $\alpha$
+and $\beta$, which would have produced the actual data. 
+
+Following the same path we used for the Binomial distribution, we look for plausible pairs $[\alpha,\beta]$ to see which one is the most
+likely to have generated the actual data. While for the Binomial
+case the actual data were six heads out of ten tosses, for the
+Gompertz distribution the data in hands are the deaths by age $x_{i}$. 
+
+Also in this case, a suitable tool for fitting a distribution is
+Maximum Likelihood Estimation. The difference is that for Gompertz
+we have two parameters and, consequently, it is slightly harder to get an 
+analytical maximum.
+
+Nevertheless we can derive the formula for the likelihood function as
+product of the density functions since we assume that deaths occur
+independently (for further details see
+\citet{klein1997survival}). Moreover we aim to maximize
+it:  
+\begin{eqnarray}\label{likegomp}
+  L(\bm{\theta} | x_{i}, i=1,\ldots, n) &=& \prod_{i=1}^{n}
+  f(\bm{\theta} | x_{i}) = \nonumber \\ 
+  &=& \prod_{i=1}^{n} \left[
+    h(\bm{\theta} | x_{i}) \cdot
+    S(\bm{\theta} | x_{i}) \right]
+  = \nonumber \\ 
+  &=& \prod_{i=1}^{n} \left[
+    \alpha e^{\beta x_{i}} \cdot
+    e^{\frac{\alpha}{\beta} (1 -
+      e^{\beta x_{i}})}\right] 
+\end{eqnarray}
+where $\bm{\theta}$ is the vector $(\alpha, \beta)$.
+
+Remember always that it is easier to work with the log-likelihood such that
+products are transformed in sums. In formula:
+\begin{eqnarray}\label{loglikegomp}
+  \mathcal{L}(\bm{\theta} | x_{i}, i=1,\ldots, n) &=& \sum_{i=1}^{n}
+  \ln[f(\bm{\theta} | x_{i})] = \nonumber \\ 
+  &=& \sum_{i=1}^{n} \left\{
+    \ln[h(\bm{\theta} | x_{i})] +
+    \ln[S(\bm{\theta} | x_{i})] \right\}
+  = \nonumber \\ 
+  &=& \sum_{i=1}^{n} \left\{
+    \ln[\alpha e^{\beta x_{i}}] +
+    \ln[e^{\frac{\alpha}{\beta} (1 -
+      e^{\beta x_{i}})}]\right\}
+    = \nonumber \\ 
+    &=& \sum_{i=1}^{n} \left\{
+    \ln(\alpha) + \beta x_{i} +
+    \frac{\alpha}{\beta} (1 -
+      e^{\beta x_{i}})\right\}
+\end{eqnarray}
+
+
+\subsection{Optimizing in R}
+We can code in \R the equation~(\ref{loglikegomp}) remembering that
+\texttt{optim} searches for the minimum. Then our objective function
+is -log-likelihood: 
+<<>>=
+loglike.gom <- function(theta, x){
+    alpha    <- theta[1]
+    beta     <- theta[2]
+    loglk    <- log(alpha) + beta*x + alpha/beta*(1 - exp(beta*x))
+    sumloglk <- -sum(loglk)
+    return(sumloglk)
+}
+@ 
+
+This function has two arguments, the vector of unknown parameters
+$\bm{\theta}= (\alpha, \beta)$ and the actual data $x_{i}$.
+
+Note that \texttt{optim} can optimize over a \textbf{single} argument,
+which could be a scalar or a vector: it is our task to specify,
+inside the objective/log-likelihood function, how this argument should work.
+
+We use for this example the data we generate in the previous module:
+\texttt{lt}. An instance of this simulated data are saved in the file
+\texttt{ltGomp.txt}: 
+<<>>=
+lt <- read.table("ltGomp.txt")
+@ 
+
+Since we have simulated them, we know the true parameter
+($\alpha=0.00003$ and $\beta=0.1$):
+<<>>=
+true.a <- 0.00003
+true.b <- 0.1
+@ 
+Nevertheless let's assume that we want to estimate them. In other
+words, our aim is to find, given those data,  the most plausible
+parameters of the Gompertz distribution, i.e.~given \texttt{lt}, we
+need to minimize \texttt{loglike.gom}.  
+
+In order to find $\hat{\alpha}$ and $\hat{\beta}$, we can simply 
+use \texttt{optim}, give some starting values, and assign the outcomes to 
+an object:
+<<>>=
+opt.gomp <- optim(par = c(0.001, 0.05), loglike.gom, x = lt)
+@
+This time we may have some warning messages regarding the logarithm, 
+but the optimization procedure seems OK. To be sure
+let's have a look at \texttt{opt.gomp} 
+<<>>=
+opt.gomp
+@
+In particular we are interested in the values of $\hat{\alpha}$ 
+and $\hat{\beta}$. Let's extract them:
+<<>>=
+opt.gomp$par
+@
+They are fairly similar to the true parameters we have used in the simulation:
+<<>>=
+true.a
+true.b
+@ 
+
+\subsection{Confidence Interval for the parameters}
+
+One way of checking the uncertainty of the estimated parameters is
+to construct their confidence internals.
+
+Briefly, we can compute the standard errors of the estimated
+parameters by taking the square root of the variance-covariance matrix
+of your maximum likelihood estimator, which can be computed by inverting
+the Hessian matrix evaluated at the estimated parameters. In \R we can
+extract the Hessian matrix using the routine \texttt{fdHess()} from
+the package \texttt{nlme}:
+<<>>=
+library(nlme)
+H <- fdHess(pars = opt.gomp$par, loglike.gom, x = lt)$Hessian
+@ 
+Then we invert this matrix (more about this operation in a later
+module) with the function \texttt{solve()}
+<<>>=
+vcov <- solve(H)
+@ 
+Finally, we compute the standard errors for our $\hat{\bm{\theta}}=[\hat{\alpha},
+  \hat{\beta}]$ as follows:
+<<>>=
+se.theta <- sqrt(diag(vcov))
+@  
+
+The 95\% confidence intervals can be computed by adding and
+substracting 2 times the standard errors from the estimated
+parameters. To keep everything in a single object, we write:
+<<>>=
+thetas <- cbind(opt.gomp$par + 2 * se.theta,
+                opt.gomp$par,
+                opt.gomp$par - 2 * se.theta)
+@ 
+
+A plot of true parameters along with the estimated ones and their 95\%
+confidence intervals is useful to check the model fit.
+%<<eval=FALSE>>=
+%plot(rep(1, 3), thetas[1, ], pch = c(3, 4, 4))
+%points(1, true.a, col = 2)
+%plot(rep(1, 3), thetas[2, ], pch = c(3, 4, 4))
+%points(1, true.b, col = 2)
+%@ 
+Results are shown in Figure~\ref{fig:CIgomp}.
+
+\begin{figure}
+\begin{center}
+<<efig.width=7, fig.height=4>>=
+par(mfrow=c(1,2))
+plot(rep(1,3), thetas[1, ], pch = c(3, 4, 4))
+points(1, true.a, col=2)
+plot(rep(1,3), thetas[2, ], pch = c(3, 4, 4))
+points(1, true.b, col=2)
+par(mfrow=c(1,1))
+@
+\caption{True and estimated parameters from a Gompertz distribution
+  along with the estimated 95\% confidence intervals. Simulated life-times.} \label{fig:CIgomp} 
+\end{center}
+\end{figure}
+
+
+
+\subsection{Graphical view}
+
+Unlike for the log-likelihood function of the Binomial distribution
+which was quite simple to plot against different values of $\pi$, the
+Gompertz distribution raises additional issues. We are in a two-dimensional setting, 
+hence the log-likelihood is no longer a line depending on a single parameter, but
+a surface depending on two parameters.
+
+In other words instead of a 2-D graph (e.g.~$\pi$ vs.~$\mathcal{L}(\pi|x)$), we need to plot a 3-D
+surface where the three axes are:
+\begin{itemize}
+  \item different values for the first parameter, $\alpha$
+  \item different values for the second parameter, $\beta$
+  \item log-likelihood evaluated for each combination of the two
+    parameters, $\mathcal{L}(\pi | \alpha,\beta)$. 
+\end{itemize}
+
+This can be easily coded in \R for the Gompertz case. Like for
+the $\pi$ in the Binomial case, we first have to decide which
+plausible values for $\alpha$ and $\beta$ we want: 
+<<>>=
+alphas <- seq(0.00002, 0.00005, length = 100)
+betas  <- seq(0.05, 0.13, length = 100)
+@
+then, remembering that we are in a 3-D setting, we create a matrix
+which should be filled with the values of the \texttt{loglike.gomp}
+evaluated for each couple of \texttt{alphas} and \texttt{betas}. This
+can be done with a double \texttt{for}-loop, for instance: 
+<<>>=
+my.like <- matrix(0, nrow = length(alphas), ncol = length(betas))
+for(i in 1:length(alphas)){
+  for(j in 1:length(betas)){
+    my.like[i, j] <- loglike.gom(c(alphas[i], betas[j]), x = lt)
+  }
+}
+@
+
+
+Once we have the grid of possible -(log-likelihood) values, we plot them
+using the function \texttt{image}\footnote{For a better explanation of this 
+kind of plot, type \texttt{?image}.}.
+We need to change the breaks in order to get a better idea of the minimum:
+%<<>>=
+%my.breaks <- quantile(my.like, 
+%                      prob=c(0, 0.005, 0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1))
+%image(alphas, betas, my.like, breaks = my.breaks, col = gray(seq(0,.9,length=9)))
+%abline(v=opt.gomp$par[1])
+%abline(h=opt.gomp$par[2])
+%@
+\begin{figure}
+\begin{center}
+<<>>=
+my.breaks <- quantile(my.like, 
+                      prob = c(0, 0.005, 0.1, 0.2, 0.3, 0.4, 0.5, 0.7, 0.9, 1))
+image(x = alphas, 
+      y = betas, 
+      z = my.like, 
+      breaks = my.breaks, 
+      col = gray(seq(0, .9, length = 9)))
+abline(v = opt.gomp$par[1], col = "red", lty = 2)
+abline(h = opt.gomp$par[2], col = "red", lty = 2)
+points(opt.gomp$par[1], opt.gomp$par[2], pch = 16, col = "red")
+@
+\caption{A contour plot of a -(log-likelihood) of a Gompertz.} \label{imagelike}
+\end{center}
+\end{figure}
+
+Figure \ref{imagelike} clearly shows the minimum, and which
+$\alpha$ and $\beta$ generated it. These are based on what we fit
+using \texttt{optim()}:
+<<>>=
+opt.gomp$par
+@ 
+\pagebreak
+\section{Exercise}
+
+The species \emph{bunny bunny bavariae} (the ``Wolpertinger'', or the North-American ``Jackalope'') is a
+rarely observed animal. Usually it is
+active only during the nights in remote, rural, areas of Bavaria (the
+southern part of Germany). In Figure~\ref{wolp} you can see a picture
+of it. Due to being very shy, not much is known about the animal. We
+were able, however, to estimate the age at death of some Wolpertingers
+which have been hit by cars. We assume that the lifetimes of the
+Wolpertinger follow an exponential distribution with rate parameter
+$\lambda$. 
+
+\begin{figure}[h!]
+\begin{center}
+\includegraphics[scale=.3]{wolpi.pdf} \caption{A
+Magnificent Specimen of a Wolpertinger (\textit{bunny bunny
+bavariae}) - before the accident} \label{wolp}
+\end{center}
+\end{figure}
+
+In formulas we can define the probability density function of an
+Exponential distribution as follows:
+$$
+f \left(x; \lambda \right) =  \left\{\begin{array}{ll}
+  \lambda \exp{\left(-\lambda x\right)} & \mbox{if } x\geq0 \\ 
+  0 & \mbox{if } x<0
+\end{array} \right.
+$$
+
+We can thus derive the cumulative distribution function:
+$$
+F\left(x; \lambda \right) =  \left\{\begin{array}{ll}
+  1 -  \exp{\left(-\lambda x\right)} & \mbox{if } x\geq0 \\ 
+  0 & \mbox{if } x<0
+\end{array} \right.
+$$
+with $\lambda > 0$, rate parameter of the distribution.
+
+The data set \texttt{wolp.txt} consists of observed values of
+Wolpertingers which have been hit by cars. This data set has two
+variables:
+\begin{description}
+\item \texttt{id}: an identification numbers for each hit Wolpertinger
+\item \texttt{ageatdeath}: the estimated age (in years) of the Wolpertinger
+\end{description}
+For all cases, we assume that the death of one Wolpertinger occurred
+independently from any other death. 
+
+The task is to estimate the rate parameter $\lambda$ of the lifetime
+distribution of the Wolpertingers in Bavaria using
+Maximum Likelihood Estimation. As we have done for the Binomial and for
+the Gompertz distributions, we can derive the the likelihood-function for $n$
+individuals using the probability density function of the lifetime
+distribution of the Wolpertingers: 
+$$
+L\left(\lambda \mid x \right) = \prod_{i=1}^n \lambda \exp{\left(-\lambda
+        x_i\right)}\text{,}
+$$
+where $x_i$ is the lifetime of the ith Wolpertinger.
+
+Of course we need to remember that the final likelihood function is
+the joint probability function of all data points. 
+
+In other words you are asked to:
+\begin{itemize}
+  \item[(i)] derive the log-likelihood-function $\mathcal{L}\left(\lambda \mid
+      x \right) = ln \left[ L\left(\lambda \mid x \right) \right]$. 
+  \item[(ii)] Translate this log-likelihood function $\mathcal{L}\left(\lambda \mid x \right)$
+    into a \texttt{R}-function:
+    \texttt{loglike.exp(lambda, x)}. 
+  \item[(iii)] Minimize the -(log-likelihood) \texttt{loglike.exp(lambda,x)}
+    for obtaining the unknown rate parameter \texttt{lambda}. Use for this task the
+    \texttt{R}-function \texttt{optim()}. Hint: in this case, the syntax of
+    \texttt{optim()} would be
+\begin{verbatim}
+        optim ( par = 1/12,
+                function = loglike.exp(lambda,x),
+                x = ageatdeath
+               )
+\end{verbatim}
+    At this \texttt{par} $= \frac{1}{12}$ is arbitrarily chosen as the
+    starting value for numerical optimization. Pay attention to the
+    fact that the negative log-likelihood function must be used as
+    input argument. 
+  \item[(iv)] Plot the values of function \texttt{loglike.exp(lambda,x)}
+    for $\lambda = [0.0001, 0.2]$ and $x_{i}$.
+    Label the axis of the plot and give a title to the graphic.
+  \item[(v)] Are you able to numerically find $\hat{\lambda}$
+    without using the function \texttt{optim}? Hint: see next task.
+  \item[(vi)] Are you able to compute $\hat{\lambda}$
+    without grid search and \texttt{optim}? 
+  \item[(vii)] Are you able to find $\hat{\lambda}$ without any
+    numerical approximation?
+\end{itemize}
+
+Do feel free to work together on this exercise, as it requires some thinking on the math/stats side.
+
+\bibliographystyle{chicago}
+\bibliography{bibliography}
+
+\end{document}

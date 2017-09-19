@@ -1,0 +1,810 @@
+\documentclass{article}
+
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{
+ pdfstartview={XYZ null null 1}}
+
+
+\usepackage[a4paper,
+            left=2.3cm,
+            right=2.3cm,
+            bottom=2.3cm,
+            top=2.8cm,
+            footskip=32pt]{geometry}   
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{rotating}
+\usepackage[sort]{natbib} 
+\usepackage{amsmath, amssymb, bm}  
+\usepackage{fancybox} 
+
+\newcommand{\andd}{\texttt{\&}}  
+\newcommand{\aandd}{\texttt{\&\&}}  
+\newcommand{\orr}{\texttt{|}}  
+\newcommand{\oorr}{\orr\orr}  
+\newcommand{\bsl}{$\backslash$}  
+\newcommand{\R}{\texttt{R} }
+
+
+\pagestyle{fancy} 
+\lhead{\textsl{R Programming: Module 8}} 
+\rhead{\includegraphics[width=1.8cm]{EDSDLogoLarge.jpg} \textsl{EDSD 2017/18}}
+
+\begin{document}
+% Rscript -e "library(knitr); knit('./filename.Rnw')"
+% pdflatex filename.tex
+%<<setup, include=FALSE, cache=FALSE>>=
+%library(knitr)
+%# set global chunk options
+%opts_chunk$set(fig.path='figure/EDSD140mod8-', 
+%%               cache.path='cache/EDSD140mod8-',
+%               fig.align='center',
+%               fig.show='hold', 
+%               fig.width=4, fig.height=4)
+%options(replace.assign=TRUE, width=50, scipen = 50, digits = 4)
+%my_pdf = function(file, width, height) {
+%  pdf(file, width = width, height = height, pointsize = 8)
+%}
+%@
+
+
+\title{\small{$\,$}\\
+  \large{\textit{R Programming for Demographers}} \\ $\,$ \\
+       \Huge{Matrix Algebra}}
+\author{Tim Riffe\footnote{First, a big thanks to Giancarlo Camarda, who has let me recycle
+his impeccable material for teaching this course. Higher order thanks are also
+due to the very same people that Giancarlo himself thanked, especially Sabine
+Zinn and Roland Rau. Sabine was my teacher in this very course in 2009 (cohort 5)!
+Part of these lectures has been freely inspired by courses that both Roland,
+Sabine, and Giancarlo taught in the past. Furthermore, in recent years,
+Adam Lenart, Fernando Colchero, and Silvia Rizzi have aided in teaching this
+course and improving handouts. On the other hand, it goes without saying that I
+am uniquely responsible for any deficiencies and mistakes you may find in
+handouts.}}
+
+\maketitle
+\thispagestyle{fancy}
+\tableofcontents
+
+
+\section{Introduction}
+
+Perhaps the most common data structure for many users in \R is a
+\texttt{data.frame}. However, from a mathematical and computational
+point of view the \texttt{vector} and \texttt{matrix} are the most
+important data structures (as well as an \texttt{array} if one
+considers more than two dimensions). Recall the basic difference: A
+\texttt{matrix} is a rectangular data structure where all elements are
+of the same type: either numbers or logical values or character
+strings, etc. Of course, matrices of numeric values are the most common.
+
+On the other hand, a \texttt{data.frame}, which is also rectangular,
+may have columns of different types. This allows the user to combine numeric
+variables along with character variables, factors, or others. Sometimes \R
+seems to behave strangely, if one tries to apply methods on a data
+frame, which actually is supposed to be a matrix, or the other way
+around. So be intentional about what data structure you're using for a given job.
+
+The most common pitfall is that objects created by the
+\texttt{read.table()} command are data frames even though one thinks
+the input as a two-dimensional array of numbers that are supposed to
+describe a matrix. However there is an easy way to coerce a
+\texttt{data.frame} into a \texttt{matrix} by applying
+\texttt{data.matrix()}. 
+
+Apart from reading in matrices from external files, matrices can be
+created by several commands such as \texttt{matrix()}. This, together
+with indexing and subsetting, was presented in Session 2. 
+
+\section{Matrix operations}
+
+\subsection{Addition and Subtraction}
+
+If you want to add or subtract matrices, both matrices have to have
+the same dimensions. Each element in one matrix is then added to (or
+subtracted from) the corresponding element in the other matrix: 
+<<>>=
+A <- matrix(1:4, nrow = 2, ncol = 2)
+B <- matrix(5:8, nrow = 2, ncol = 2)
+A
+B
+A + B
+A - B
+@ 
+
+\subsection{Scalar Multiplication}
+A matrix is multiplied with a scalar by multiplying each element with
+the scalar:
+<<>>=
+A * 5
+5 * A
+@ 
+Scalar multiplication can be done between two vectors/matrices. In
+this case multiplication is done element-by-element (the hadamard product):
+<<>>=
+A * B
+B * A
+@ 
+
+\subsection{Vector Multiplication}
+To multiply a row-vector with a column-vector (or vice-versa) both
+vectors have to have the same number of elements. Then the
+corresponding elements are multiplied with each other and the
+resulting products will be summed up. 
+<<>>=
+A.vec <- matrix(c(2, 6, 5, 8), nrow = 1)
+B.vec <- matrix(c(7, 3, 9, 4), ncol = 1)
+A.vec
+B.vec
+intermediate <- c(A.vec[1] * B.vec[1],
+                  A.vec[2] * B.vec[2],
+                  A.vec[3] * B.vec[3],
+                  A.vec[4] * B.vec[4])
+intermediate
+sum(intermediate)
+@
+
+This should give the same result as (please note the different
+operator!): 
+<<>>=
+A.vec %*% B.vec
+@ 
+
+\subsection{Matrix Multiplication}
+
+Two matrices $\bm{A}$ and $\bm{B}$ can be multiplied in this way
+$\bm{A} \% * \% \bm{B}$, only if the number of columns
+in matrix $\bm{A}$ is equal to the number of rows in matrix
+$\bm{B}$. These matrices are then called ``conformable''. Each row 
+vector in matrix $\bm{A}$ is then multiplied by the corresponding column
+vector in matrix $\bm{B}$. An example in \R:
+<<>>=
+A <- matrix(c(4, 9, 11, 7, 12, 3), nrow = 2, byrow = TRUE)
+B <- matrix(c(8, 2, 6, 20, 7, 12), nrow = 3, byrow = TRUE)
+A
+B
+@ 
+
+Multiplying by hand it would look like this: 
+<<>>=
+upper.left  <- sum(c(A[1, 1] * B[1, 1], A[1, 2] * B[2, 1], A[1, 3] * B[3, 1]))
+lower.left  <- sum(c(A[2, 1] * B[1, 1], A[2, 2] * B[2, 1], A[2, 3] * B[3, 1]))
+upper.right <- sum(c(A[1, 1] * B[1, 2], A[1, 2] * B[2, 2], A[1, 3] * B[3, 2]))
+lower.right <- sum(c(A[2, 1] * B[1, 2], A[2, 2] * B[2, 2], A[2, 3] * B[3, 2]))
+matrix(c(upper.left,  upper.right, 
+         lower.left, lower.right), 
+         nrow = 2, byrow = TRUE)
+@ 
+
+But it is much more convenient in \R to use the built in
+matrix multiplication: 
+<<>>=
+A %*% B
+@ 
+
+Please note that the operator \emph{matrix multiplication} is
+noncommutative since 
+\begin{equation*}
+\begin{pmatrix}
+0 & 2\\
+0 & 1\\
+\end{pmatrix} =
+\begin{pmatrix}
+1 & 1\\
+0 & 1\\
+\end{pmatrix} \cdot
+\begin{pmatrix}
+0 & 1\\
+0 & 1\\
+\end{pmatrix} \neq
+\begin{pmatrix}
+0 & 1\\
+0 & 1\\
+\end{pmatrix} \cdot
+\begin{pmatrix}
+1 & 1\\
+0 & 1\\
+\end{pmatrix} =
+\begin{pmatrix}
+0 & 1\\
+0 & 1\\
+\end{pmatrix}
+\end{equation*}
+
+We can check with our example:
+<<>>=
+A %*% B
+B %*% A
+@
+
+\subsubsection{Important Special Case}
+
+The following case should receive attention especially from
+demographers working with matrix population models. One can multiply a
+square matrix with a column vector (given the number of rows in the
+matrix is equal to the number of elements in the vector): 
+\begin{equation*}
+\bm{Ax} =
+\begin{pmatrix}
+A_{11} & A_{12} & A_{13}\\
+A_{21} & A_{22} & A_{23}\\
+A_{31} & A_{32} & A_{33}\\
+\end{pmatrix} 
+\begin{pmatrix}
+x_1 \\
+x_2 \\
+x_3 \\
+\end{pmatrix} =
+\begin{pmatrix}
+A_{11}x_1 &+& A_{12}x_2 &+& A_{13}x_3\\
+A_{21}x_1 &+& A_{22}x_2 &+& A_{23}x_3\\
+A_{31}x_1 &+& A_{32}x_2 &+& A_{33}x_3\\
+\end{pmatrix}
+\end{equation*}
+
+Let's do this now ``by hand'' in \R:
+<<>>=
+A <- matrix(1:9, nrow = 3, byrow = FALSE)
+x <- matrix(1:3, ncol = 1)
+A
+x
+el1 <- A[1, 1] * x[1] + A[1, 2] * x[2] + A[1, 3] * x[3]
+el2 <- A[2, 1] * x[1] + A[2, 2] * x[2] + A[2, 3] * x[3]
+el3 <- A[3, 1] * x[1] + A[3, 2] * x[2] + A[3, 3] * x[3]
+rbind(el1, el2, el3)
+@ 
+And in the easy way in \R:
+<<>>=
+A %*% x
+@ 
+
+\subsection{Transpose and Inverse}
+
+If you transpose a matrix you simply turn columns into rows and rows
+into columns. The turning point is the main diagonal. Usually you
+denote the transpose of a matrix or a vector like this: $\bm{A}^T$ or
+$\bm{A}'$. In \R you do: 
+<<>>=
+A <- matrix(rpois(25,10), ncol=5)
+A
+t(A)
+@ 
+
+Another often-performed operation on matrices is the inverse of a
+matrix, typically denoted as $\bm{A}^{-1}$. 
+For quadratic matrices (of full rank) the inverse of a matrix is
+such that: $\bm{A} \cdot \bm{A}^{-1}= \bm{I}\,$ where $\bm{I}$ denotes the
+Identity matrix. In \R, this operation can be achieved by the
+function \texttt{solve()}, when given a single matrix argument: 
+<<>>=
+solve(A)
+@ 
+
+To show that $\bm{A} \cdot \bm{A}^{-1} = \bm{I}$, we multiply the
+original matrix with its inverse.:
+<<scipen = 1, digits = 2>>=
+A %*% solve(A)
+@ 
+Despite some rounding error, we get back an identity matrix.
+
+The same function \texttt{solve()}, when given two arguments, solves
+linear systems of the form: 
+$$
+\bm{A} \, \bm{x} = \bm{b}
+$$
+for $\bm{x}$\footnote{If the system is over-determined it gives the LS-fit,
+  if $\bm{A}$ does not have full rank it gives an error.}. 
+
+For example, assume that we aim to solve the following system of
+equations: 
+\begin{eqnarray*}
+10 x_{1} + 30 x_{2} &=& 5\\
+20 x_{1} + 40 x_{2} &=& 1
+\end{eqnarray*}
+That is 
+$$
+\bm{A} = \left[ \begin{array}{cc}
+  10 & 30 \\
+  20 & 40 \\
+\end{array}\right] \quad \mbox{and} \quad \bm{b} = \left[ \begin{array}{c}
+  5 \\
+  1 \\
+\end{array}\right]
+$$
+Let's translate these objects in \R:
+<<>>=
+A <- matrix(c(10, 20, 30, 40), 2, 2)
+b <- matrix(c(5, 1), 2, 1)
+@ 
+In other words, what is the combination of $\bm{x} = (x_{1}, x_{2})^{T}$
+that satisfies both equations? In \R just execute:
+<<>>=
+x <- solve(A, b)
+x
+@ 
+To test the result we reverse the operation multiplying $\bm{A}$ by
+$\bm{x}$:
+<<>>=
+A%*%x
+@ 
+and obtaining $\bm{b}$ back.
+
+\section{Decomposing a matrix}
+
+Besides matrix transposition and inversion there are several matrix
+decompositions readily available in \R. Many of them, like the Choleski
+decomposition (function \texttt{chol()}) for symmetric positive-definite
+matrices or the QR decomposition (function \texttt{qr()}) are important for
+numerical purposes.
+
+\subsection{Eigenvalues and eigenvectors}
+
+The calculation of eigenvalues and eigenvectors of a square matrix is
+a valuable tool in matrix population models, too. The function
+\texttt{eigen()} calculates both eigenvalues and -vectors. 
+
+<<>>=
+eA <- eigen(A)
+eA
+A %*% eA$vec[, 1]
+eA$val[1] * eA$vec[, 1]
+@ 
+
+Let's check the following two relationsships:
+\begin{itemize}
+\item the product of the eigenvalues is equal to the determinant of
+  $\bm{A}$ 
+<<>>=
+det(A)
+prod(eA$val)
+@
+\item the sum of the eigenvalues is equal to the trace of $\bm{A}$,
+  where we denote with trace the sum of the diagonal-elements
+<<>>=
+sum(diag(A))
+sum(eA$val)
+@
+\end{itemize}
+
+\subsubsection{Computing the intrinsic growth rate}
+
+We saw in handout 4 how to compute the intrinsic growth rate by
+solving the discrete version of the Lotka equation using Newton's method. 
+
+In this section we will solve with the same problem using matrix algebra.
+Information about population growth is contained in the projection
+matrix. Specifically it turns out that the key to
+stability, as well as the key to understanding whether a population
+eventually grows or eventually decreases, is in the eigenvalues.
+
+The answer is that a projection matrix, under certain conditions, has a single dominant
+eigenvalue $\lambda_{1}$, interpretable as the net reproductive rate (NRR, a.k.a. $R_0$). This eigenvalue is always a positive number and
+essentially determines the long-term behavior of the model as follows:
+\begin{enumerate}
+\item If the dominant eigenvalue satisfies $0< \lambda_{1} < 0$, then
+  the population eventually decreases and decays to zero 
+\item If the dominant eigenvalue is exactly equal to 1, the population
+  approaches a stationary state 
+\item If the dominant eigenvalue is larger than 1, the population
+  eventually grows without bound
+\end{enumerate}
+
+Let's use the information about USA in 1991 for computing the
+intrinsic growth rate. First we need the data:
+<<>>=
+usaC <- read.table("FunUSA1991compl.txt", header = TRUE)
+head(usaC)
+L <- usaC$L
+m <- usaC$m
+n <- length(m)
+@ 
+Here we need the complete life table person-years and the rate of
+bearing female children between two ages.
+
+Then we construct the projection matrix. Two elements are fundamental
+here: (1) the survivorship ratio between two age-groups which should
+be placed in the subdiagonal; (2) the number of female births
+surviving for the first row of the projection matrix. We'll give an abbreviated version here, but you can get all the juicy details in \cite{caswell2001matrix}.
+The first elements are practically the ratio between subsequent values
+of $L$
+<<>>=
+SurvRatio <- L[-1] / L[-n]
+@ 
+
+The second part is a bit more involved: We need to average the
+rate of bearing female births coming from a given age-group and the
+subsequent one devoid of the probability of surviving. Then we need to
+multiply these values by the first number of $L$ which introduces the
+chance for a new born to survive to the next age-group. In \R:
+<<>>=
+FB0 <- (m[1:(n - 1)] + m[2:n] * SurvRatio[1:(n - 1)]) / 2
+FB  <- L[1] * FB0
+@ 
+
+Now the construction of the projection matrix is straightforward
+except for an additional step for the last open age interval:
+<<>>=
+A                  <- matrix(0, n, n)  # set up
+A[1, 1:length(FB)] <- FB               # female births
+diag(A[-1,])       <- SurvRatio        # subdiag survival probs
+@ 
+As mentioned, for the last age interval we need to intervene directly
+by combining the last two age-groups and project them
+<<>>=
+A[n, n - 1] = A[n, n] = L[n] / (L[n - 1] + L[n])
+@ 
+
+Let's have a final look at our projection matrix:
+<<eval=FALSE>>=
+fix(A)
+@ 
+
+We can take any population structure and apply the matrix
+\texttt{A} to reach a stable population with a precise age-structure that
+solely depends upon the projection matrix. That's called \textit{strong} ergodicity. Moreover we can easily
+compute the intrinsic growth rate (Lotka's $r$) by taking the logarithm of the real
+part of the dominant (first) eigenvalues. Of course this needs to be
+divided by 5 to obtain the outcome for time-unit equal to single
+calendar year: 
+<<>>=
+lambda1 <- Re(eigen(A)$values[1])
+r       <- log(lambda1) / 5
+r
+@  
+
+The result is really close to what we previously obtain and it tells
+us that, as $n$ gets larger, US population will decrease about
+-0.0166\% each year. It can also be shown that no matter what the
+initial population structure is, it eventually approaches a multiple
+of the dominant eigenvector. In \R the stable equivalent age
+distribution can be computed by
+<<>>=
+C <- Re(eigen(A)$vector[, 1] / sum(eigen(A)$vector[, 1]))
+@ 
+
+Note that most of the theory behind this last exercise goes beyond the
+scope of this module and course. For a detailed description of the methodology see,
+among others, \citet{caswell2001matrix}, \citet[chapter
+  3]{keyfitz2005applied}, and \citet[chapter
+  6-7]{preston2001demography}. 
+
+\subsection{Singular Value Decomposition}
+
+If $\bm{X} \in \mathbb{R}^{n \times p}$ is a rectangular matrix, it
+has a singular value decomposition (SVD) of 
+$$
+\bm{X} = \bm{U} \bm{D} \bm{V}' \, ,
+$$
+where $\bm{U}$ and $\bm{V}$ have orthonormal columns: $\bm{U}^{-1} =
+\bm{U}'$ and $\bm{V}^{-1} = \bm{V}'$. Moreover, $\bm{D}$
+is diagonal, with diagonal elements $d_{i}$, ordered in decreasing order. The
+number of non-zero elements gives the rank of $\bm{X}$. In \R,
+the command for this decomposition is \texttt{svd}:
+<<>>=
+B
+(duv <- svd(B))
+duv$u %*% diag(duv$d) %*% duv$v
+t(duv$u) %*% duv$u
+@ 
+
+The singular values $d_{i}$ are the square roots of the eigenvalues
+$\sqrt{\lambda_{i}}$ of the matrix $\bm{X}^{T}\bm{X}$. Check this fact
+for our matrix \texttt{B}: 
+<<>>=
+sqrt(eigen(t(B) %*% B)$val)
+duv$d
+@ 
+
+Another important aspect of the SVD is that often the first singular
+value(s) contain enough information about $\bm{X}$ as you can see from
+the differences in the values of $d_{i}$:
+<<>>=
+M    <- matrix(1:25,5,5)
+svdM <- svd(M)
+svdM$d
+@ 
+Now we can approximate \texttt{M} using only the first singular value:
+<<>>=
+M
+(svdM$u[,1] * svdM$d[1]) %*% t(svdM$v[,1])
+@ 
+Not too shabby!
+
+\subsubsection{Fitting the Lee-Carter model}
+
+This feature was used by \citet{lee1992modeling} for estimating their
+well-known model directly on the log-death rates over age and time:
+$$
+\ln(m_{ij}) = \alpha_{i} + \beta_{i} \cdot \kappa_{j}
+$$
+where $\alpha_{i}$, $\beta_{i}$ and $\gamma_{j}$ are vectors of
+parameters over either ages or years\footnote{Nowadays there are more
+  suitable way for estimating this model. Among others we would suggest
+  to look at the Maximum Likelihood Estimation presented in
+  \citet{brouhns2002poisson}.}. 
+
+It can be seen that, once $\alpha_{i}$ (the average over time of the log-death rates) is subtracted from the
+original matrix of log-rates, we need to find the best approximation
+for a rectangular matrix using two vectors over the two
+domains: We can apply SVD. Without going into details, we need to
+warn that the model is under-determined, hence additional constraints
+are needed to make the solution unique. Commonly we take:
+$$
+\sum_{j} \kappa_{j} = 0 \qquad \qquad  \sum_{i} \beta_{i}  = 1
+$$
+In other words we need to follow this procedure:
+\begin{enumerate}
+\item Given the matrix of log-death rates, $\ln m_{ij}$
+\item We average it over time, and this will be the first vector of
+  parameters: $\alpha_{i} = \overline{\ln m_{i}}$ 
+\item We center log-death rates: $\ln m_{ij} - \alpha_{i}$ 
+\item We apply the SVD:
+  \begin{equation*}
+    \ln m_{ij} - \alpha_{i} \simeq U_{,1} \, d_{1,1} \, V_{,1}'
+  \end{equation*}
+\item Set and normalize vectors of parameters:
+  \begin{eqnarray*}
+    \beta_{i} &=& U_{,1}\, / \, \sum_{j} U_{j,1}  \\
+    \kappa_{j} &=& s_{1,1} \cdot V_{,1} \cdot \sum_{j} U_{j,1}
+  \end{eqnarray*}
+\end{enumerate}
+
+Let's load some data and apply SVD for fitting a Lee-Carter
+model. We take the log-death rates of French women from 0 to
+100 in years 1930-2010.
+<<>>=
+lmx       <- read.table("lmxFRAfem.txt", header=T)
+ages      <- 0:100
+years     <- 1930:2010
+cent.lmx  <- lmx - rowMeans(lmx)
+SVD       <- svd(cent.lmx)
+beta      <- SVD$u[, 1] / sum(SVD$u[, 1])
+kappa     <- SVD$v[, 1] * SVD$d[1] * sum(SVD$u[, 1])
+@ 
+
+Now we can plot the parameters vectors (Fig.~\ref{fig:LCpar}):
+
+\begin{figure}
+\begin{center}
+<<fig.width=7, fig.height=4>>=
+par(mfrow = c(1,3))
+plot(ages, alpha)
+plot(ages, beta)
+plot(years, kappa)
+par(mfrow = c(1,1))
+@
+\caption{Parameter-vectors from the Lee-Carter model estimated with
+  SVD. French women from 0 to 100 in years 1930-2010} \label{fig:LCpar}  
+\end{center}
+\end{figure}
+
+
+\section{Regression with matrices}
+
+In the following we present another instance of the usefulness of working
+with matrices: Estimation of regression models. As you know from your
+basic statistics classes, we can write a linear model in matrix
+notation: 
+$$
+\bm{y} = \bm{X}\, \bm{\beta} + \bm{\varepsilon} \, .
+$$
+Assuming normal errors, setting the derivatives of the
+log-likelihood with respect to $\bm{\beta}$ to zero, the estimation of
+coefficients is given by:
+\begin{equation*}
+\bm{\hat{\beta}} = \left( \bm{X}'\bm{X} \right)^{-1} \bm{X}'\bm{y}
+\end{equation*}
+where $\bm{X}$ denotes the stimulus matrix (also called design matrix
+or model matrix) and $\bm{y}$ denotes the response. A great book on
+this model and its generalization is \citet{mccullagh1989generalized}. 
+
+Note that if we include the intercept, the first column of $\bm{X}$ is
+actually a column of $1$s. 
+
+\subsection{Simulated data}
+
+Before playing with actual data, we always suggest simulating some
+data yourself. This helps to check whether new approaches are working
+(we know the truth because we made it) and which assumptions are behind our model
+(because we need to impose them in the simulation setting). Here is a simple
+linear model: 
+<<>>=
+n       <- 100
+x1      <- sort(runif(n))
+X       <- model.matrix(~x1)
+beta0   <- 3
+beta1   <- 4
+betas   <- c(beta0, beta1)
+y.true  <- X %*% betas
+y       <- y.true + rnorm(n, sd = 0.2)
+@ 
+The function \texttt{model.matrix()} is used here to build up the
+design matrix $\bm{X}$ and it include the intercept by default.
+
+In this simple case one could also create the model matrix by
+<<>>=
+X <- cbind(1, x1)
+@ 
+
+Let's plot the data:
+<<eval=FALSE>>=
+plot(x1, y)
+lines(x1, y.true, col = 2, lwd = 3)
+@ 
+
+We expect our estimated parameters $\bm{\hat{\beta}}$ to be equal to
+$3$ and $4$ for the intercept and the slope, respectively. Using the
+previous formula,  and separating the two parts of our system:
+<<>>=
+LHS <- t(X) %*% X
+RHS <- t(X) %*% y
+betas.hat <- solve(LHS, RHS)
+betas.hat
+@ 
+We can then compute the fitted values and plot along with the
+simulated and true ones (Fig.~\ref{fig:Regr}):
+<<eval=FALSE>>=
+y.hat <- X %*% betas.hat
+lines(x1, y.hat, col = 4, lwd = 2, lty = 2)
+@ 
+
+\begin{figure}
+\begin{center}
+<<echo=FALSE>>=
+y.hat <- X %*% betas.hat
+plot(x1, y)
+lines(x1, y.true, col = 2, lwd = 3)
+lines(x1, y.hat, col = 4, lwd = 2, lty = 2)
+@
+\caption{An example of linear model with simulated
+  data.} \label{fig:Regr}  
+\end{center}
+\end{figure}
+
+Of course, you may already know, there are much easier ways to perform
+this in \R: 
+<<>>=
+fit.lm <- lm(y ~ x1)
+fit.lm$coeff # same!
+@
+
+\subsection{Actual application}
+
+Now we'll fit a linear model on actual data. Specifically let's see
+whether there is any relation between the level of GDP per capita, in
+the log-scale, and life expectancy (a.k.a., the Preston-curve). We use the dataset in
+\texttt{GDPe0.txt} for carrying out this example:
+<<>>=
+GDPe0 <- read.table("GDPe02012.txt", 
+                    header = TRUE, 
+                    sep = ",", 
+                    stringsAsFactors = TRUE)
+@ 
+
+First we set up our response and model matrices, in which we have both log-GDP per capita and the geographical region. The idea is that log-GDP per capita acts linearly on life expectancy, and that we expect a
+different intercept for each region, i.e.~parallel lines.
+<<>>=
+y  <- GDPe0$e0
+x1 <- log(GDPe0$GDPcapPPP)
+x2 <- GDPe0$Region
+X  <- model.matrix(~x1 + x2)
+@ 
+
+Note that the variable \texttt{Region} is already read as a factor (categorical variable) in \R
+and that, automatically, \texttt{model.matrix()} will construct dummy
+variables for this covariate by ordering it alphabetically and
+setting the first level as the reference category. In this case the reference
+will be the region \texttt{Africa} which actually will not appear
+among the column headers of \texttt{X}:
+<<>>=
+head(X)
+@ 
+
+We can now estimate the regression model and its coefficients:
+<<>>=
+LHS <- t(X) %*% X      # left-hand side
+RHS <- t(X) %*% y      # right-hand side
+b   <- solve(LHS, RHS)
+b
+@ 
+
+Of course also in this case we could have used the \R routine \texttt{lm()}:
+<<>>=
+fitlm <- lm(y ~ x1 + x2)
+summary(fitlm)
+@ 
+obtaining the same estimated coefficients.
+
+Note that $p$-values for the covariate \texttt{Region} are computed to
+test the difference of each intecept with the reference one
+(e.g.~Africa) and the significance can not be interpreted as a real
+presence of independent intercepts for each geographical region. To
+check for this possible misunderstanding, we will \texttt{relevel} the
+covariate \texttt{x2} with Europe as reference and run the same model:
+<<>>=
+x2new <- relevel(x2, "Europe")
+fitlm <- lm(y ~ x1 + x2new)
+summary(fitlm)
+@ 
+
+A simple plot for looking at the outcome is given here and shown in
+Figure~\ref{fig:lmGDPe0}: 
+
+\begin{figure}
+\begin{center}
+<<eval=FALSE>>=
+plot(x1, y, col = as.numeric(x2), pch = 16)
+abline(a = b[1], b = b[2], col = 1)
+abline(a = b[1] + b[3], b = b[2], col = 2)
+abline(a = b[1] + b[4], b = b[2], col = 3)
+abline(a = b[1] + b[5], b = b[2], col = 4)
+abline(a = b[1] + b[6], b = b[2], col = 5)
+abline(a = b[1] + b[7], b = b[2], col = 6)
+legend("bottomright", levels(GDPe0$Region), col = 1:7, pch = 16)
+@ 
+\caption{Actual and fitted values from a linear model for log-GDP per capita vs. life
+  expectancy for 184 countries in 2012.} \label{fig:lmGDPe0}  
+\end{center}
+\end{figure}
+
+
+\section{Exercise}
+
+\subsection{Exercise 1}
+
+
+Using matrix algebra, solve the following system of equations: 
+\begin{equation*}
+\left\{ 
+\begin{array}{ccc}
+ 8 x + 10 y + 11 z &=& 13\\
+ 9 x + 10 y +  5 z &=& 11\\
+14 x + 35 y +  4 z &=& 11 
+\end{array}
+\right.
+\end{equation*}
+
+finding the vector $[x,y,z]$.
+
+\subsection{Exercise 2}
+
+For this exercise you need to load some data called \texttt{Jims.txt}. As already mentioned they contain three
+variables: 
+\begin{description}
+\item \texttt{year} the observation year
+\item \texttt{rle} the record life expectancy
+\item \texttt{country} the name of the country that had the \texttt{rle}
+\end{description}
+
+For this exercise you need to use just the first two variables.
+
+As you may already know, the main insight of
+\citet{oeppen2002broken} is that record life expectancy
+increased linearly with time during the last century and half. In
+particular, our interest is to partly reproduce their result using our
+knowledge in \R and linear algebra. 
+
+Firstly, just to get an idea, you need to simply plot years vs.~record life expectancy.  
+
+Then, since they used a linear normal model, you have to find the two
+coefficients (for the intercept and for the years) using matrix
+algebra. 
+
+Test your outcomes using the \R-function \texttt{lm}, and plot the
+fitted lines over the previous plot using \texttt{abline()}.  
+
+
+\bibliographystyle{chicago}
+\bibliography{bibliography}
+
+
+
+\end{document}

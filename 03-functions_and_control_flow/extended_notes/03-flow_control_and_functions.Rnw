@@ -1,0 +1,1506 @@
+ \documentclass{report}
+
+\setcounter{tocdepth}{4}
+\setcounter{secnumdepth}{4}
+
+\usepackage[sc]{mathpazo}
+\usepackage[T1]{fontenc}
+\setcounter{secnumdepth}{2}
+\setcounter{tocdepth}{2}
+\usepackage{url}
+\usepackage[unicode=true,pdfusetitle,
+ bookmarks=true,bookmarksnumbered=true,bookmarksopen=true,bookmarksopenlevel=2,
+ breaklinks=false,pdfborder={0 0 1},backref=false,colorlinks=false]
+ {hyperref}
+\hypersetup{
+ pdfstartview={XYZ null null 1}}
+
+
+\usepackage[a4paper,
+            left=2.3cm,
+            right=2.3cm,
+            bottom=2.3cm,
+            top=2.8cm,
+            footskip=32pt]{geometry}   
+\usepackage{graphicx}
+\usepackage{fancyhdr}
+\usepackage{rotating}
+\usepackage[sort]{natbib} 
+\usepackage{amsmath, amssymb, bm}  
+\usepackage{fancybox} 
+\usepackage{tabularx} 
+
+\newcommand{\andd}{\texttt{\&}}  
+\newcommand{\aandd}{\texttt{\&\&}}  
+\newcommand{\orr}{\texttt{|}}  
+\newcommand{\oorr}{\orr\orr}  
+\newcommand{\bsl}{$\backslash$}  
+\newcommand{\R}{\texttt{R} } 
+
+\pagestyle{fancy} 
+\lhead{\textsl{R Programming: Module 3}} 
+\rhead{\includegraphics[width=1.8cm]{EDSDLogoLarge.jpg} \textsl{EDSD 2017/18}}
+
+
+\begin{document}
+
+% Rscript -e "library(knitr); knit('./filename.Rnw')"
+% pdflatex filename.tex
+%<<setup, include=FALSE, cache=FALSE, hide=TRUE, echo=FALSE>>=
+%library(knitr)
+%# set global chunk options
+%# opts_chunk$set(fig.path='figure/EDSD140mod3-', 
+%#                cache.path='cache/EDSD140mod3-',
+%#                fig.align='center',
+%#                fig.show='hold', 
+%#                fig.width=4, fig.height=4)
+%options(replace.assign=TRUE, width=55, scipen = 50, digits = 4)
+%# my_pdf = function(file, width, height) {
+%#   pdf(file, width = width, height = height, pointsize = 8)
+%# }
+%setwd("/home/tim/workspace/EDSD/2016-2017/ProgrammingR/Lessons/session3")
+%@
+
+
+\title{\small{$\,$}\\
+  \large{\textit{R Programming for Demographers}} \\ $\,$ \\
+       \Huge{Flow control and Functions}}
+\author{Tim Riffe\footnote{First, a big thanks to Giancarlo Camarda, who has let me recycle
+his impeccable material for teaching this course. Higher order thanks are also
+due to the very same people that Giancarlo himself thanked, especially Sabine
+Zinn and Roland Rau. Sabine was my teacher in this very course in 2009 (cohort 5)!
+Part of these lectures has been freely inspired by courses that both Roland,
+Sabine, and Giancarlo taught in the past. Furthermore, in recent years,
+Adam Lenart, Fernando Colchero, and Silvia Rizzi have aided in teaching this
+course and improving handouts. On the other hand, it goes without saying that I
+am uniquely responsible for any deficiencies and mistakes you may find in
+handouts.}}
+
+\maketitle
+\thispagestyle{fancy}
+\tableofcontents
+
+\chapter{Flow control}
+
+%%% -------------------------------------------------------------------- %%%
+%%% -------------------------------------------------------------------- %%%
+\section{Introduction}
+
+In this lecture we will learn some basic programming tools such as
+loops (as well as tips to avoid them). Though at a glance it
+will seem beyond practical application in demography, I assure
+you that you will use the skills covered today daily.
+
+%%% -------------------------------------------------------------------- %%%
+%%% -------------------------------------------------------------------- %%%
+
+\section{Conditional execution}
+
+Conditional execution is performed in \R using the command/function \texttt{if}. It works like this: One first tests a condition. *Only* if this
+condition is true, the following code is executed. If it's not true, then the following code chunk gets skipped. The main
+syntax is: 
+%<<echo=FALSE, results = hide>>=
+%condition <- FALSE
+%do.this <- 1
+%
+%@
+<<eval=FALSE>>=
+if ( condition == TRUE ) do.this
+@ 
+(double equals is used when checking for equality)
+As actual example:
+<<>>=
+life.expectancy <- 60
+if (life.expectancy > 80) print("Life Expectancy is relatively high")
+# nothing happens!
+life.expectancy <- 85
+if (life.expectancy > 80) print("Life Expectancy is relatively high")
+@ 
+
+As you can see, nothing happens after the
+first line starting with \texttt{if}. Only if the condition is true, is the result printed. Note that the function \texttt{print} is used
+to show an \R-object in the console, like a character-string.
+
+It is often the case that you do not only want to perform one action
+after the \texttt{if-} condition is \texttt{TRUE}. You can 
+group several statements into one by putting curly braces around
+them. Have a look at the following simple example. Our idea is to
+assign the value ``Japan'' to the variable \texttt{country} \emph{only if}
+life expectancy (\texttt{lifeexp}) is greater than 85.
+<<>>=
+country <- "no idea"
+lifeexp <- 84
+if(lifeexp > 85){ # open code chunk 
+  print("Life Expectancy is larger than 85")
+  country <- "Japan"
+}                 # close code chunk
+country
+@ 
+Obviously the object \texttt{country} remains equal to ``no idea''
+since \texttt{lifeexp} is not greater then 85. Like in previous cases,
+the indentation before \texttt{print...} and \texttt{country...} is
+not necessary, but it makes your code more elegant and decipherable in
+the future, i.e. with the indentation you visibly create a hierarchy
+in your program. 
+
+Like in other languages, it is also allowed in \R to tell the
+interpreter what happens if the condition is not \texttt{TRUE} but
+\texttt{FALSE} via the \texttt{else} statement. See this example using
+1 number randomly drawn from a Normal Distribution with mean equal to -10:
+<<>>=
+my.ran <- rnorm(1, mean=-10)
+if(my.ran >= 0){
+  print("My Random Number is 0 or Greater.")
+  }else{
+  print("My Random Number is Smaller than 0.")
+}
+@ 
+As expected, \texttt{my.ran} is smaller than 0: the actual
+probability to get a different outcome is practically equal to 0.
+
+When working with \texttt{if} constructions, one wants to 
+use also other conditions. We have seen in Module 1, that we can
+specified both \texttt{AND} and \texttt{OR} constructions by the
+symbols \andd\ and \orr, respectively. 
+
+Let's draw another number from the same distribution, but with mean
+equal to 10, and test whether both numbers are greater than zero, and
+whether at least one of them is greater than zero:
+<<>>=
+my.ran1 <- rnorm(1, mean=10)
+my.ran > 0 & my.ran1 > 0
+my.ran > 0 | my.ran1 > 0
+@
+We are pretty sure you get first \texttt{FALSE} and then
+\texttt{TRUE}, right? 
+
+We can carry out the same condition element-by-element using two
+vectors (with random numbers from a Standard Normal Distribution) and
+assign the logical values to a new vector \texttt{cond}:  
+<<>>=
+my.vec1 <- rnorm(5)
+my.vec2 <- rnorm(5)
+cond    <- (my.vec1 < 0) & (my.vec2 < 0)
+@
+It works also without brackets, but using the brackets makes the structure clearer. Let's check the results merging the three vectors in a
+dataframe: 
+<<>>=
+data.frame(vec1 = my.vec1, vec2 = my.vec2, cond = cond)
+@                            
+In this case we would not bet much on the absence of \texttt{TRUE}
+values in the variable \texttt{cond}: there is 25\% chance to obtain
+\texttt{TRUE} at each condition. 
+
+\section{Repetitive execution}
+
+Besides the branching command \texttt{if}, there are several commands
+available in \R for repetitive execution.
+
+\subsection{\texttt{for}-loops}
+
+The most common command for repetitive execution is the \texttt{for}
+loop. The syntax is
+<<eval=FALSE, cache=TRUE>>=
+for(iterator in set.of.values){
+  do.something
+}
+@ 
+
+The parameter \texttt{iterator} takes on the first
+value of \texttt{set.of.values} in the first loop and executes
+\texttt{do.something}. In the second run, the second value is taken from
+\texttt{set.of.values} and so on until the last value is taken from
+\texttt{set.of.values} and \texttt{do.something} is executed the last
+time. 
+
+\R accepts numeric values as well as character vectors and other things.
+See the following examples for clarification:
+<<>>=
+countries <- c("AUT", "BEL", "DEU", "NLD", "GBR", "USA")
+for (i in countries) {
+    print(i)
+}
+for (i in 1:4) {
+    print(countries[i])
+}
+@ 
+
+These were very trivial examples and we did not made any operation
+within the loop. The next slightly more complex example shows how to
+compute life expectancy over calendar years by looping over columns of
+a given matrix. 
+
+In a continuous framework we can compute life expectancy by
+$$
+e^{0} = \frac{\int_{0}^{\infty} l(a) da}{l(0)}
+$$
+See \citep[p.~61]{preston2001demography}. 
+
+Assuming mortality can only happens on January 1 of each year, we can
+approximate the previous formula by:
+$$
+e^{0} = \frac{\sum_{0}^{\omega} l_x}{l_0}
+$$
+where, in our case, $l_{0}$ is the radix of the life table equal to
+$10^5$.\footnote{Will this overestimate or underestimate $e^0$?}
+
+The file \texttt{lxJPNfem.txt} is a matrix of survivors from the
+life tables ($l_{x}$) taken from the \citet{HMD} for Japanese
+women from 1950 to 2009 over the complete age range (0-110). Rows and
+columns are indexed by ages and years, respectively.
+
+First we read in the dataset, and it is always a good habit to set up
+the objects to be used for the problem in hand:
+<<>>=
+lx    <- read.table("lxJPNfem.txt")
+ages  <- 0:110
+years <- 1950:2009
+l0    <- 10^5
+@ 
+
+We have all the elements for computing $e_{0}$ for each calendar year
+for Japanese women. First we create an object (\texttt{e0}) which is a
+vector of zeros of the required length; then for each column of the
+matrix \texttt{lx} we apply the previous equation by summing up its
+elements and dividing this summation by the scalar \texttt{l0}. The
+outcomes are then passed to the $i$-th position of the previously
+built object \texttt{e0}. In this way at the end of the
+\texttt{for}-loop, which should run from 1 to the length of the years,
+we have collected all life expectancy in the object \texttt{e0}. In
+\R: 
+<<>>=
+e0       <- rep(0, length(years))
+for(i in 1:length(e0)){
+  sum.lx <- sum(lx[, i])   # i moves over the columns
+  e0[i]  <- sum.lx / l0
+}
+@ 
+
+We show the development of the life expectancy for
+Japanese women with a simple scatter-plot of the elements of \texttt{e0}
+vs. \texttt{years}:
+%<<echo=TRUE>>=
+%plot(years, e0)
+%@ 
+See the outcome in Figure~\ref{fig:e0JPN}.
+
+\begin{figure}
+\begin{center}
+<<echo=FALSE>>=
+plot(years, e0)
+@
+\caption{\small{Life expectancy at birth from 1950 to 2009 for
+Japanese women}} \label{fig:e0JPN}  
+\end{center}
+\end{figure}
+
+
+\subsection{\texttt{while}-loops}
+
+Less often used, but very useful for mathematical and statistical
+computation is the \texttt{while}-loop. Specifically this loop is very valuable for iteration problems. The 
+syntax is a bit simpler than in the case of the \texttt{for}-loop:
+\begin{verbatim}
+while (parameter is true) dosomething
+\end{verbatim}
+
+See the following code-piece:
+<<>>=
+x <- 10
+while(x>1){
+  x <- x / 2
+  print(x)
+}
+@
+The first line sets $x=10$. The condition that needs to be fulfilled
+is $x>1$ and, as long as this condition is true, a command $x=\frac{x}{2}$
+is repeatedly applied. In words the command within the loop says ``the
+new value of $x$ is equal to the old value of $x$ divided by two''.
+In other words this example will start with the number 10, keep on
+dividing it by two until a number less than one is obtained and then
+stop. In order to follow what the loop is doing, we additionally print the
+updated value of $x$.
+
+As a demographic example, we take the Swedish population in 2000 and
+assuming a constant geometric growth rate equal to 5.3 \textperthousand, we
+test in which year this population will reach 10 million.
+First we set the starting population, the starting year and the known
+$r$ (geometric growth rate):
+<<>>=
+N  <- 8860859
+yr <- 2000
+r  <- 5.3 / 1000
+@ 
+Then we run a \texttt{while}-loop until the object \texttt{N} is
+no longe smaller than 10 million. Within the loop we update the population
+based on the following formula:
+$$
+N_{T} = N_{0} (1 + r)
+$$
+and we also update (increment) the year-object. The final line within the loop is
+use to concatenate and print the updated objects, \texttt{yr} and
+\texttt{N}. The argument \texttt{fill} breaks the output into
+successive lines. 
+<<>>=
+while(N < 10^7){
+  N <- N * (1+r)
+  yr <- yr+1
+  cat(yr, N, fill=TRUE)
+}
+@ 
+
+Finally, given our specific assumptions, Swedish population will reach
+10 millions in 2023. 
+
+Note that \texttt{while}-loop needs an
+increment/decrement in the \texttt{do.something} part (the
+body). Otherwise the program would end up in an infinite loop or would
+never start. When setting up a while-loop, just be certain that it will eventually stop!
+
+If we run a \texttt{for}-loop until it reaches a given criterion, we
+can replace a \texttt{while}-loop. Specifically we need to inform the
+\texttt{for}-loop about a criterion on each new iteration and require
+it to stop when it is reached. We show this instance
+reproducing the last example with the Swedish population:
+<<>>=
+N <- 8860859
+yr <- 2000
+for(i in 1:100){
+  N <- N * (1 + r)
+  yr <- yr + 1
+  cat(yr, N, fill = TRUE)
+  if(N > 10 ^ 7) break
+}
+@ 
+
+The key command here is \texttt{break} which followed a conditional
+execution with the selected criterion. Note that in this setting we
+can specify the maximum number of iterations (here 100): a useful
+aspect in case of unknown computational times of the loop.
+
+\section{Vectorization}
+When changes or operations are to be made for values (some or all) 
+in an array(matrix), a possible alternative to some of 
+these control structures is to use vectorization methods. In other words
+we will learn how to use functions that operate on all the values in a matrix or an 
+array ``simultaneously''.\footnote{Or at least it appears so...}
+
+\subsection{The logical commands}
+For applying particular condition to each element of a vector we
+create a vector of random systolic blood pressure for 10 observations
+from a Normal Distribution with mean 125 and standard deviation equal
+to 10. We round the outcomes to mimic an actual scenario. Then we use
+a \texttt{for}-loop which fills an empty vector called
+\texttt{assessment} using a conditional execution about the current
+systolic bloop pressure: if the value is lower than 130, then the
+observation could be \texttt{"OK"}, otherwise we have a
+\texttt{"Critical"} situation. In \R:
+<<>>=
+systolic.bp <- round( rnorm(10, mean = 125, sd = 10) )
+assessment  <- rep(0, length(systolic.bp))
+for(i in 1:length(systolic.bp)){
+    if(systolic.bp[i] < 130){
+        assessment[i] <- "OK"
+    }else{
+        assessment[i] <- "Critical"
+    }
+}
+@
+
+Instead of this tedious double \texttt{if}-\texttt{else} into a
+\texttt{for}-loop, one can easily use the function
+\texttt{ifelse}. The syntax of is:
+\texttt{ifelse(condition, true, false)}. 
+<<>>=
+assessment <- ifelse(systolic.bp < 130, "OK", "Critical")
+@
+And why not nicely frame the outcome?
+<<>>=
+cbind(systolic.bp, assessment)
+@
+
+We can generalize the logical operators \texttt{AND} 
+and \texttt{OR} in order to apply them elementwise. We need 
+just to double the symbols:
+<<>>=
+myrandom <- rnorm(10)
+(myrandom < 0) && (myrandom < -1)
+# compare with:
+(myrandom < 0) & (myrandom < -1)
+# same behavior as &&:
+all((myrandom < 0) & (myrandom < -1))
+@
+The result is \texttt{FALSE} if any element is greaterthan -1. Vice versa, \texttt{TRUE} is 
+obtained with just one element smaller than -1.
+
+Another example with the condition \oorr\:
+<<>>=
+myrandom > -2.58 || myrandom < 2.58
+@
+In this case we can be rather sure that the result would be 
+\texttt{TRUE}: with 10 numbers from a standard normal distribution 
+it would be really easy to get at least a number in [-2.58, 2.58]
+
+\subsection{Avoiding \texttt{for}-loops}
+
+Sometimes we overuse \texttt{for}-loops
+and any kind of flow-controls.
+
+Often the procedure is intuitively iterative, but not from a
+programming point of view. Moreover using specific functions for
+avoiding loops can speed-up the code and makes it more
+elegant\footnote{As E.W. Dijkstra used to say: in programming
+  ''elegance is not a dispensable luxury, but a factor that often decides between success and failure.'' \citep{EWD:EWD1237}}.
+  
+Good functions for considerable speed-up belong to the apply family
+such as \texttt{apply}, \texttt{lapply}, \texttt{tapply}, \texttt{sapply} which map a
+function to all elements of a given data structure. Let's see some
+examples of these constructs:
+
+\subsubsection{\texttt\bf{apply()}}
+
+First we create a 10 by 10 matrix:
+<<>>=
+M <- matrix(rnorm(100), 10, 10)
+@
+
+We can naively compute the mean of each column with a
+\texttt{for}-loop: 
+<<>>=
+m        <- rep(0, ncol(M))
+for(i in 1:length(m)){
+    m[i] <- mean(M[, i])
+}
+m
+@
+or simply use the function \texttt{apply()}. Its syntax can be written
+such: 
+\begin{verbatim}
+apply(myobject, in_which_direction, which_function)
+\end{verbatim}
+where the directions are either rows (1) or columns (2)\footnote{Note
+  that one can use both directions just typing as second arguments
+  \texttt{c(1,2)}. This feature turns out to be useful using this function
+  on an array}. In the previous example one could just type:
+<<>>=
+apply(M, 2, mean)
+@
+obtaining the same outcome. Of course we can use any function 
+\R provides and also our own functions (see Module 4). 
+
+However, \R occassionally has built in gold-nuggets for just such situations, and these always perform much faster still:
+<<>>=
+colMeans(M)
+@
+However, not every function has a special built-in vectorized version of itself, and thus one often needs to use \texttt{apply()}. A nice feature of \texttt{apply()} is also the possibility to give optional
+arguments to the ``internal'' function. As example:
+<<>>=
+apply(M, 1, weighted.mean, w = 1:10)
+@
+In this case the argument \texttt{w=} belongs to the function
+\texttt{weighted.mean}(see \texttt{?weighted.mean}), but since we are using such function within an
+\texttt{apply()} command we can use also its arguments. In this case we
+compute for each row a weighted mean of their elements where the
+weights increase from 1 to 10. 
+
+The function \texttt{apply()} can be applied also into an array. Here is a
+short example to note how to assign the dimensions: 
+<<>>=
+myarray <- array(runif(48), dim=c(2,8,3))
+@
+In this case the possible directions for \texttt{apply()} are 3, 
+namely row-column-layer. As example we may write:
+<<>>=
+mean.row <- apply(myarray,1,mean)
+mean.row
+mean.col <- apply(myarray,2,mean)
+mean.col
+mean.lay <- apply(myarray,3,mean)
+mean.lay
+@
+
+We can use the \texttt{apply()} command to shorten and make more elegant
+the computation of life expectancy at birth for Japanese women from
+1950 to 2009. Instead of the previous \texttt{for}-loop, we just need
+to type the command:
+<<>>=
+e0.new <- apply(lx, 2, sum)/l0
+@
+in which we apply to each column of \texttt{lx} the function
+\texttt{sum} obtaining a vector which is divide by the radix of the
+life table \texttt{l0}. 
+
+As you might expect, we can be even more efficient still:
+<<>>=
+e0.new.new <- colSums(lx) / l0
+@
+
+You can check that all three
+procedures lead to the exact same results.
+
+The matrix of survivors in \texttt{lx} could be also used to compute
+the other demographic indicators. 
+
+The median age at death is defined as the age such that
+$l_{x}$ is equal to $l_{0}/2$. Obviously this would work in a
+continuous framework, with our data we need to assume a constant force
+of mortality over each age and search for the last age in which $l_{x}$ is
+just over $l_{0}/2$. 
+
+To compute the median age at death we first apply to each cell of \texttt{lx} the \emph{bigger than}
+(\texttt{>}) command, specifying to which value we
+compare. This
+operation create a new matrix fills with \texttt{FALSE} and
+\texttt{TRUE} for all the ages in which the values of \texttt{lx} are
+below or above \texttt{l0/2}, respectively. \footnote{In the session 2 class-script, we did something very similar using a monotonic spline. Give it a try on \texttt{lx}!}
+<<>>=
+under.over <- lx > l0 / 2
+@ 
+
+Have a look at the outcome, showing about every 10 rows and columns:
+<<eval=FALSE, cache=TRUE>>=
+under.over[seq(1, 111, by = 10), seq(1, 51, by = 10)]
+@ 
+
+We have seen in Module 1 that logical values are efficiently stored as 0/1 values, therefore if we sum
+them up we basically count the number of \texttt{TRUE}. In our example
+the number of \texttt{TRUE} within each column are all the ages above
+$l_{0}/2$. Hence we can apply to each column of \texttt{under.over}
+the function \texttt{sum} obtaining the median age at death. Type the following commands to
+compute the median ages and plot them over years
+(Figure~\ref{fig:medianJPN}): 
+<<echo=TRUE>>=
+median.age <- apply(under.over, 2, sum)
+#plot(years, median.age)
+@
+
+\begin{figure}
+\begin{center}
+<<echo=FALSE>>=
+plot(years, median.age)
+@
+\caption{\small{Median age at death from 1950 to 2009 for Japanese women}} \label{fig:medianJPN}
+\end{center}
+\end{figure}
+
+\subsubsection{\texttt\bf{lapply()}}
+
+The function \texttt{lapply()} works analogously to the
+\texttt{apply()}-command. The only difference is that the function is
+not applied to rows and columns of an array, but to the elements of a
+list.  
+
+Before a demographic application we apply this command to random
+number from a Normal Distribution:
+<<>>=
+L <- list(a = rnorm(1000, mean=10, sd=2), 
+          b = rnorm(100, mean=10, sd=4), 
+          c = rnorm(10000, mean=10, sd=6))
+lapply(L, quantile, prob = seq(from = 0, to = 1, by = 0.2))
+@ 
+
+The outcome of \texttt{lapply()} is a list with the same number of
+elements like the input list. \texttt{prob} is an argument of \texttt{quantile()} (see: \texttt{?quantile}).
+
+As a demographic example we will simultaneously compute life
+expectancy at birth and Total Fertility Rates (TFR) for Japan in
+2000. From \citet[p.~95]{preston2001demography}, we know that TFR is given
+by: 
+$$
+TFR = \sum_{x=\alpha}^{\beta} F_{x} 
+$$
+where $F_{x}$ are the age specific fertility rates and $\alpha$ and
+$\beta$ are the minimum and maximum age at childbearing. 
+
+The file \texttt{FertJPN.txt} contains fertility data for Japan in
+2000. Specifically it has two columns: ages and age-specific fertility
+rates. Let's load the data and quickly look at them:
+<<>>=
+FertJPN <- read.table("FertJPN.txt")
+head(FertJPN)
+@ 
+
+Both life expectancy at birth and TFR are a product of a summation
+over vectors which have different length. We can thus merge both
+information into a list and simultaneously compute them. First we
+extract the survival function from the object \texttt{lx} in 2000 and
+the age specific fertility rates from \texttt{FertJPN}:
+<<>>=
+mort <- lx[, years==2000]/l0
+fert <- FertJPN$asfr
+@ 
+Note that instead of manually searching for the right column in
+\texttt{lx}, we used a relational operator for picking the survivors
+in 2000 calling the vector \texttt{years}. Then we
+divide the life-table survivor function by its radix (\texttt{l0}) to
+obtain the survival probability function. For the fertility data the job is
+simpler: extract a variable from a dataframe. 
+
+Now we can merge this information in a list and compute $e_{0}$ for
+females and TFR for Japan in 2000:
+<<>>=
+listJPN <- list(mort=mort, fert=fert)
+lapply(listJPN, sum)
+@ 
+
+
+\subsubsection{\texttt\bf{sapply()}}
+
+The function \texttt{sapply()} is a user-friendly generalization of
+the function \texttt{lapply()}. It returns a vector or matrix if appropriate.
+<<>>=
+sapply(L, quantile, prob = seq(0, 1, by = 0.2))
+sapply(listJPN, sum)
+@ 
+
+The outcome of \texttt{sapply()} is a matrix.
+
+\subsubsection{\texttt\bf{tapply()}}
+
+The \texttt{tapply()} function is useful when we need to break up a
+vector into groups defined by some classifying factor, compute a
+function on the subsets, and return the results in a convenient form.  
+
+Specifically the arguments of the function \texttt{tapply()} are the vector we aim
+to break and compute the function from, the classifying factor and the
+function we aim to apply. 
+
+To see an example of this useful function, we upload a dataset
+about life expectancy at birth (for both sexes) and Gross Domestic
+Product (GDP) based on purchasing-power-parity (PPP) per capita in US
+dollars. The data are given in the file \texttt{GDPe02009.txt}.
+
+Both $e_{0}$ and GDP refer to estimates for 2009 and they are taken from
+the World Bank and World Health Organization web-sites,
+respectively. Additionally we include information about the coutry
+names as well as the geographical region and the World Bank
+classification according to the incomes.
+
+First we load the data and look at them:
+<<>>=
+GDPe0 <- read.table("GDPe02012.txt", header = TRUE, sep = ",")
+head(GDPe0)
+@ 
+
+As an example we compute the mean GDP per capita by the
+geographical regions:
+<<>>=
+tapply(GDPe0$GDPcapPPP, GDPe0$Region, mean)
+@
+
+Within \texttt{tapply()}, we can specify multiple factors as the
+grouping variable, for example we can compute the mean of the 
+life expectancy at birth by geographic regions and income groups:
+<<>>=
+tapply(GDPe0$e0,
+       list(GDPe0$Region, GDPe0$WorldBankGroup),
+       mean)
+@ 
+
+The \texttt{NA} outcomes shows that no country belongs simultaneouly
+to the
+\texttt{South-East Asia} region and to either the \texttt{High-income}
+or the \texttt{Upper-middle income} group.
+
+
+
+
+
+%%% -------------------------------------------------------------------- %%%
+%%% -------------------------------------------------------------------- %%%
+\section{Exercises}
+
+
+
+
+\subsection{Exercise 1}
+
+In our data-folder you will find six files:
+\texttt{deaDENf.txt}, \texttt{popDENf.txt}, \texttt{deaFRAf.txt}, \texttt{popFRAf.txt},
+\texttt{deaITAf.txt} and \texttt{popITAf.txt}. As you may guess from the names, 
+they contain female population of Denmark, France and Italy by age (0-99) and
+year (1950-2000) as well as the number of people dead for the same age- and period-range.
+
+\begin{itemize}
+\item[(i)] Read all files
+\item[(ii)] Coerce each data.frame to be a matrix 
+\item[(iii)] Using a \texttt{for}-loop, compute the total population of
+  Denmark in each year 
+\item[(iv)] Using \texttt{apply} compute the mean number of deaths for both
+  France and Italy by single age 
+\item[(v)] Create two new matrices which sum up the
+  three populations (\texttt{TOTpop}) and deaths (\texttt{TOTdea})
+\item[(vi)] Calculate a matrix with age- and year-specific death rates
+  \texttt{m.xy} for the three countries combined following $m(x,y) =
+  \frac{D(x,y)}{N(x,y) - 0.5 \cdot D(x,y)}$ 
+\end{itemize}
+
+
+\subsection{Exercise 2}
+
+This exercise presents a typical programming exercise:
+computing square root of a number by Newton's Method\footnote{For more
+information see \texttt{en.wikipedia.org/wiki/Newton's\_method}.}.
+
+We can define the square-root function as:
+$$
+\sqrt{x} = y \, \textrm{ such that }\,  y \geq 0 \, \textrm { and } \,
+y^{2} = x
+$$
+
+How does one compute square roots? For instance, Wikipedia lists 14 different ways,
+but we will exercise our programming skills with only one of them which
+uses Newton's method of successive approximations: whenever we have a
+guess $\tilde{y}$ for the value of the square root of a number $x$, we
+can modify it for getting a guess closer to the actual square
+root. This operation is the average between $\tilde{y}$ and
+$\frac{x}{\tilde{y}}$.  
+
+For example, we can compute the square root of $x=3$ as shown in
+Table~\ref{tab:sqrt}, supposing the our initial guess is
+$\tilde{y}=1$. So, one has basically 3 steps which have to repeat
+changing the so-called ``guess'' and the subsequential outcomes. 
+
+The exercise asks you to create a \texttt{for}-loop for computing
+square roots of a given number, let's say $x=123$. 
+
+Hints: set the object $x$ and an initial values such as 5. Then run
+the loop for (eventually) 100 times and stop it whenever the absolute
+difference between the current guess and the previous one is smaller
+than $10^{-4}$. 
+
+Given the suggested starting value, you should need only a handful of iterations
+to satisfy the mentioned tolerance level.
+
+% <<>>=
+% x <- 123
+% guess <- 5
+% for(i in 1:100){
+%   quotient <- x/guess
+%   average <- (quotient + guess)/2
+%   oldguess <- guess
+%   guess <- average
+%   if(abs(guess-oldguess) <= 10^-4) break
+% }
+% guess
+% @ 
+
+\vspace{1cm}
+\begin{table}[h!]
+\centering
+\begin{tabular}{|l|l|l|}
+  \hline
+\multicolumn{1}{|c|}{Guess: $\tilde{y}$ } &
+\multicolumn{1}{c|}{Quotient: $\frac{x}{\tilde{y}}$} &
+\multicolumn{1}{c|}{Average: $\frac{\textrm{Quotient} + \tilde{y}}{2} =
+  \textrm{new.guess}$} \\ 
+\hline
+& & \\
+1 & \multicolumn{1}{c|}{$\frac{3}{1}= 3$} &
+\multicolumn{1}{c|}{$\frac{(3+1)}{2} = 2$} \\ 
+& & \\
+2 & \multicolumn{1}{c|}{$\frac{3}{2}= 1.5$} &
+\multicolumn{1}{c|}{$\frac{(1.5+2)}{2}=1.75$} \\ 
+& & \\
+1.75 & \multicolumn{1}{c|}{$\frac{3}{1.75}= 1.7143$} &
+\multicolumn{1}{c|}{$\frac{(1.7143+1.75)}{2}=1.7322$} \\ 
+& & \\
+1.7322 & \multicolumn{1}{c|}{$\frac{3}{1.7322}= 1.7319$} &
+\multicolumn{1}{c|}{$\frac{(1.7319+1.7322)}{2}=1.7321$} \\ 
+& & \\
+1.7321 & \multicolumn{1}{c|}{...} & \multicolumn{1}{c|}{...} \\ 
+\hline
+\end{tabular}
+\caption{Simple scheme for explaining the computation of the square
+  root of 3 by Newton's method of successive approximations.}
+\label{tab:sqrt}
+\end{table}
+
+\chapter{Functions}
+
+\section{Introduction}
+
+One of the biggest advantages of \R is its immense
+flexibility: if you are unhappy with a way something is implemented or
+if you think something is missing, you can simply define your own
+function. Many functions in \R have also been programmed that
+way. For example, the standard deviation, \texttt{sd}:  
+<<>>=
+sd
+@ 
+
+Although you can write programs in \R without defining your
+own functions, we would recommend that you do it anyway because it
+allows you to be lazy (you don't have to write the same thing over and
+over again), your programs become more readable, and, most
+importantly: it is easier to maintain your programs. If you have made
+a mistake (which will happen for sure, we promise!), it is easier to
+correct the function definition than going through the whole program
+and try to correct every occurrence of a specific calculation. 
+
+\section{The basic structure (with simple examples)} 
+Functions are always built in the same way. The syntax is:
+
+\begin{verbatim}
+nameoffunction <- function(argument1, argument2, ...) {
+  function-body using argument1, argument2, ...   and producing myresult
+  return(myresult)
+}
+\end{verbatim}
+
+A very simple example is to write a function that calculates the
+square of a given input (which could be a scalar or a vector). 
+<<>>=
+mysquare <- function(x) {
+  myresult <- x * x
+  return(myresult)
+}
+mysquare(4)
+mysquare(1:12)
+@ 
+
+
+\section{The individual parts of a function definition}
+
+\begin{description}
+\item [\texttt{nameoffunction}]: In \R, you can give functions you
+  define yourself any kind of name. There is no restriction on the
+  length of the name. As far as we know, any kind of object in \R (data,
+  functions, \ldots) has to start with an alphabetic letter and contains
+  afterward also numbers. We would suggest that you use a name which makes it
+  clear what is being done. Better make sure that you do not overwrite an
+  internally defined function with your newly defined function. Examples
+  for legal function names are:
+\begin{verbatim}
+myfunction
+my.function
+GC.function
+DoomsdayFunction
+...
+\end{verbatim}
+\item [\texttt{<- function}]: then you tell \R that the object you
+  create is a function.
+\item [\texttt{argument1, argument2, \ldots}]: after the
+  \texttt{function}-keyword, you can give \texttt{argument}s that make
+  up the \textsl{input} for your function. The minimum number of
+  \texttt{argument}s is zero:
+<<>>=
+hello <- function(){
+  print("Hello my friends")
+}
+@ 
+But this is rather the exception. Usually, the function should perform
+different things according to the input. Let's define, for example, a
+power function which takes as input a scalar or a vector $x$ and an
+exponent $y$. The function should return $x^y$.
+<<>>=
+mypower <- function(x, y) {
+  result <- x^y
+  return(result)
+}
+mypower(2, 3)
+@ 
+
+To be more precise, we recommend to give the names of the arguments:
+<<>>=
+mypower(y = 3, x = 2)
+@ 
+
+If you want to give some default values for some arguments you can do
+this as in the following example where we assume that the most often
+used power-function is to square the base.
+<<>>=
+mypower <- function(x, y = 2) {
+  result <- x^y
+  return(result)
+}
+mypower(2,3)
+mypower(2,2)
+mypower(2)
+@ 
+
+\item [\texttt{function-body}]: In the \texttt{function-body} you
+  write all the statements and operations that you want to perform on
+  the given arguments. This is the area where typically the data
+  transformation/manipulation takes place with all the \texttt{if},
+  \texttt{for}, \ldots statements. Although this is the shortest part
+  of the function description here, this is the most difficult to
+  write. Here you can put in your creativity, effort, mistakes, \ldots.
+  
+\item [\texttt{return}]: With the \texttt{return} statement you
+  specify what the output of the function is. You can only return one
+  object - but this object can be anything: a number, a matrix, a
+  data.frame, nothing at all, a list, \ldots. The return statement is
+  actually not mandatory. If you omit it, the last evaluated term will be
+  returned. Experience shows however, that it can get very difficult
+  to spot this term in moderately complex programs. That is why we
+  suggest using it explicitly. 
+\end{description}
+
+\section{A statistical example: computing the Pearson correlation
+  coefficient}\label{exe1} 
+
+To demonstrate how you can write a function, let's provide here a
+slightly larger example to ``walk through'' line by line.
+Specifically, we aim to write a function to compute the Pearson correlation
+coefficient, $r$. Given two vectors $x$ and $y$, we want to apply the
+following formula \citep[p.~354]{AgrestiSimpleStat}:
+\begin{equation*}
+  r =
+  \frac{\sum\left(X_i-\bar{X}\right)\left(Y_i-\bar{Y}\right)}{\sqrt{\sum\left(
+        X_i-\bar{X}\right)^2\sum\left( Y_i-\bar{Y}\right)^2}}  
+\end{equation*}
+
+Here what we can write in \R:
+<<eval=FALSE>>=
+Pea.corr <- function(x,y) {
+   # "Handmade" Pearson correlation, normally denoted by "r"
+   # see Agresti, 1997, p. 354
+
+   # calculate the means
+   xmean <- mean(x)
+   ymean <- mean(y)
+
+   # numerator & denominator
+   numerator   <- sum((x - xmean) * (y - ymean))
+   denominator <- sqrt(sum((x - xmean)^2) * sum((y-ymean)^2))
+   
+   # compute the actual correlation 
+   r <- numerator / denominator
+ 
+   return(r)
+}
+@ 
+
+\begin{description}
+\item [Line 1]: Here you see the beginning of the function
+  definition. It tells us that the new function has the name
+  \texttt{Pea.corr} and that it takes two arguments, \texttt{x} and
+  \texttt{y}.
+\item [Line 2-3]: It has become good practice in many programming
+  languages that you write a short documentation string in the second
+  line of a function definition. With a short phrase you say what the
+  function should do.  
+\item [Lines 5--7]: following the formula above, first calculate the
+  means of \texttt{x} and \texttt{y}.  
+\item [Lines 09--11]: In these lines we calculate the numerator and
+  the denominator separately.
+\item [Line 13-14]: To obtain $r$, divide the numerator by the
+  denominator. 
+\item [Line 16]: And finally we state that \texttt{r} is the object
+  which should be returned from our ``blackbox'' \texttt{Pea.corr}.
+\end{description}
+
+<<echo=FALSE>>=
+# A more elaborate example: calculating r
+Pea.corr <- function(x,y) {
+# "Handmade" Pearson correlation, normally denoted by "r"
+xmean       <- mean(x)
+ymean       <- mean(y)
+numerator   <- sum((x - xmean) * (y - ymean))
+denominator <- sqrt(sum((x - xmean)^2) * sum((y-ymean)^2))
+r           <- numerator / denominator
+return(r)
+}
+@ 
+
+Empty lines in between the operations and indentation are not necessary, but useful
+to increase code legibility. Let's use our function \texttt{Pea.corr} on random numbers:
+<<>>=
+myx <- rnorm(100)
+myy <- rnorm(100)
+Pea.corr(x=myx, y=myy)
+@ 
+Of course in this case, we expect a rather low correlation: both
+\texttt{myx} and \texttt{myy} are independently randomized. Note that
+the object-names within the function can be completely different from
+the actual object we aim to use. Indeed we suggest using names for
+your in-script objects that are different from the
+argument-names in the function. This helps keep things clean and separate.
+
+Let's simulate some data in which we ensure high correlation:
+<<>>=
+myx1 <- rnorm(100)
+myy1 <- myx1 + rnorm(100, sd = 0.3)
+Pea.corr(x = myx1, y = myy1)
+@ 
+To check the correlation graphically you can plot \texttt{x} against
+\texttt{y} for both cases:
+<<>>=
+plot(myx1, myy1)
+points(myx, myy, col = 2)
+@ 
+
+More information about plotting features in \R will be given
+in a later module.
+
+\section{A demographic example: Age-standardization and decomposition} 
+
+As those of your with a background in demography may know, sometimes the difference in  age structures between two populations has a major influence on the 
+crude death rates that distorts comparisons. Age-standardization is a tool for overcoming this issue\citep[pp.~24--28]{PrestonDemogr2001}.
+
+Moreover it would be nice to quantify the difference between 
+deaths rates in two population attributable to differences in their 
+age distribution. In this case a decomposition of differences between 
+rates helps \citep[pp.~28--30]{PrestonDemogr2001}.
+
+In formulas the age-standardization:
+\begin{eqnarray*}
+ASCDR^{A} &=& \sum_{i=1}^{\infty} M_{i}^{A} \cdot C_{i}^{ave} \\
+ASCDR^{B} &=& \sum_{i=1}^{\infty} M_{i}^{B} \cdot C_{i}^{ave} 
+\end{eqnarray*}
+where $M_{i}^{A}=\frac{D_{i}^{A}}{N_{i}^{A}}$ and $M_{i}^{B}=\frac{D_{i}^{B}}{N_{i}^{B}}$ are the death rate in the $i$th
+interval for population $A$ and $B$, respectively.
+
+The average age distribution is given by
+\begin{equation*}
+C_{i}^{ave} = \left( \frac{C_{i}^{A} + C_{i}^{B}}{2}\right) \, .
+\end{equation*}
+
+We can summarize in formulas the decomposition of differences between
+rates such as \citep{kitagawa1955components}: 
+\begin{eqnarray*}
+\Delta &=& CDR^{A} - CDR^{B} = \\
+          &=& \sum_{i} (C_{i}^{A} - C_{i}^{B}) \cdot \left [ \frac{M_{i}^{A} + M_{i}^{B}}{2} \right]+ \\
+          &&  + \sum_{i} (M_{i}^{A} - M_{i}^{B}) \cdot \left [ \frac{C_{i}^{A} + C_{i}^{B}}{2} \right]=  \\
+          &=& \mathrm{contribution~of~differences~in~age} + \\
+          &&  \mathrm{contribution~of~differences~in~rates} 
+\end{eqnarray*}
+
+The inputs for a function which computes those values are:
+\begin{itemize}
+\item Population by age in country $A$: \texttt{P.A}
+\item Deaths by age in country $A$: \texttt{D.A}
+\item Population by age in country $B$: \texttt{P.B}
+\item Deaths by age in country $B$: \texttt{D.B}
+\end{itemize}
+
+A desirable output should contain:
+\begin{itemize}
+\item Age standardized crude death rate for country $A$: \texttt{ASCDR.A}
+\item Age standardized crude death rate for country $B$: \texttt{ASCDR.B}
+\item Contribution of age compositional differences: \texttt{comp.diff}
+\item Contribution of age-specific rate differences: \texttt{ASR.diff}
+\end{itemize}
+
+With some comments, using the procedures in \citet{PrestonDemogr2001} 
+and following what we have written in Section~\ref{exe1}, we write our
+function: 
+<<>>=
+stand.decom <- function(P.A, D.A, P.B, D.B){
+    # CRUDE RATES
+    A.crude     <- sum(D.A) / sum(P.A)
+    B.crude     <- sum(D.B) / sum(P.B)
+    Diff.crude  <- A.crude - B.crude
+    
+    # age distribution of country A and B
+    C.A         <- P.A / sum(P.A)
+    C.B         <- P.B / sum(P.B)
+    
+    # age-specific death rate in country A and B
+    M.A         <- D.A / P.A
+    M.B         <- D.B / P.B
+    
+    #### AGE-STANDARDIZATION
+    # average age distribution
+    C.ave       <- (C.A + C.B)/2
+    
+    # age-standardized crude death rate for country A and B
+    ASCDR.A     <- sum(M.A * C.ave)
+    ASCDR.B     <- sum(M.B * C.ave)
+    
+    #### DECOMPOSITION OF DIFFERENCES BETWEEN RATES
+    comp.diff   <- sum((C.A - C.B) * ((M.A + M.B)/2))
+    ASR.diff    <- sum((M.A - M.B) * C.ave)
+    
+    # preparing the outcomes
+    outcome     <- c(Astand = ASCDR.A, 
+                     Bstand = ASCDR.B, 
+                     A.crude = A.crude,
+                     B.crude = B.crude,
+                     Diff.crude = Diff.crude,
+                     Diff.comp = comp.diff, 
+                     Diff.rates = ASR.diff)
+    # giving the outcomes
+    return(outcome)
+}
+@
+
+Let's use this function with the raw data which are used in 
+Box 2.1 \citep{PrestonDemogr2001} on Sweden ($A$) and Kazakhstan ($B$):
+<<>>=
+ourdata <- read.table("swed_kaza.txt", header=TRUE)
+head(ourdata)
+stand.decom(P.A = ourdata$pop.swe, 
+            D.A = ourdata$dea.swe, 
+            P.B = ourdata$pop.kaz, 
+            D.B = ourdata$dea.kaz)
+@
+
+\section{A second demographic example: Identifying the Intrinsic
+  Growth Rate} 
+
+In this section we show how to write a function for estimating
+the intrinsic growth rate in a stable population. Instead of
+following the approach proposed by \citet{coale1957new}
+and described in Box 7.1 of \citet{PrestonDemogr2001}, we estimate
+this demographic value using Newton's method for root-finding. In
+this way we also introduce a popular numerical method, which might
+be useful in other situations.
+
+Without going into details, we present the framework before carrying out
+the analysis in \R. If age specific mortality and fertility rates are
+constant over time and net migration rates are zero at all ages, then
+\citet{lotka1939theorie} showed that a stable population will emerge: A population with
+an invariable age structure and a fixed rate of natural increase. 
+
+Specifically he showed that, in such situation, a continuous model of
+population dynamics is described by the following equation:
+$$
+1 = \int_{\alpha}^{\beta} \, e^{-r a} \, p(a) \, m(a) \, da \, ,
+$$
+where the survival and maternity (female-female) schedules over ages $a$ are represented by $p(a)$
+and $m(a)$, respectively. The integral is computed between the minimum
+and the maximum age at childbearing: $\alpha$ and $\beta$. The
+intrinsic growth rate in the stable population will growth is
+denoted by $r$. Among many other consequences, this equation allows
+for an estimation of how a population igrows once stability is
+reached. In order to be
+operative we will first present its version in a discrete time for single-age intervals: 
+$$
+1 = \sum_{a=\alpha}^{\beta} \, e^{-r a} \, L_a \, m_a \,  = y(r)
+$$
+which we write also as a function that depends only on $r$: age,
+mortality and fertility schedules are given. Specifically, $L_{a}$ is
+the vector of lifetable exposure from a female period life table with
+$l_{0}=1$, and $m_{a}$ is the vector with the rate of bearing female
+children.
+
+In order to search for the intrinsic growth rate that satisfies the
+previous equation, we have to find where the following function is
+equal to zero, i.e. find its root:
+$$
+r : f(r) = y(r) - 1 = 0\, .
+$$
+
+A method for finding the roots (or zeroes) of a real-valued function
+is given by Newton's method. In general if we aim to 
+$$
+x : f(x)=0 \, .
+$$
+Starting from the Taylor-expansion of $f(x)$, this approach finds
+$x$ iteratively by computing the following equation: 
+$$
+x_{n+1} = x_n - \frac{f(x_n)}{f'(x_n)} \, ,
+$$
+starting from an $x_{0}$ which is sufficiently close to the solution.
+
+More details can be found under \url{en.wikipedia.org/wiki/Newton's_method}. 
+
+In the case of the intrinsic growth rate, the unknown is $r$ and the
+first derivative with respect to $r$ of $f(r)$ is given by:
+$$
+f'(r) = y'(r) = - \sum_{a=\alpha}^{\beta} \, a \, e^{-r a} \, L_a \,
+m_a \, .
+$$
+By dividing and multiplying $f'(r)$ by $y(r)$ we obtain:
+$$
+f'(r) = y'(r) \cdot \frac{y(r)}{y(r)}= - \sum_{a=\alpha}^{\beta} \, a \, e^{-r a} \, L_a \,
+m_a \, \cdot \frac{\sum_{a=\alpha}^{\beta} \, e^{-r a} \, L_a \,
+m_a}{\sum_{a=\alpha}^{\beta} \, e^{-r a} \, L_a \, m_a} = - \,y(r) \,A_{B}
+$$
+where $A_{B} = \frac{\sum_{a=\alpha}^{\beta} \, a \, e^{-r a} \, L_a \,
+m_a}{\sum_{a=\alpha}^{\beta} \, e^{-r a} \, L_a \,
+m_a}$ is the mean age at childbearing in the stable population.
+
+We now have all the ingredients for estimating $r$ using Newton's
+method. This can be expressed in the following the steps:
+\begin{enumerate}
+\item set as starting value $r_{0} = \frac{\ln(NRR)}{A_{B,0}}$ where
+  the Net Reproduction Rate is computed as $NRR=\sum L_{a}
+  m_{a}$ and $A_{B,0}$ is a starting value for the mean age at
+  childbearing. Commonly it is assumed equal to 27, though one could also take the stationary $A_{B,0}$ (the weighted average of $a$, where $L_a * m_a$ are the weights). 
+  Reasons for such choices can be found in
+  \citet[pp.~150-155]{PrestonDemogr2001}.  
+\item compute $y(r_{0})$ and $A_{B}$
+\item compute $f(r)$ and $f'(r)$
+\item update $r_{1} = r_{0} - \frac{f(r)}{f'(r)}$
+\item iterate 2., 3. and 4. until convergence: $y(r)$ close to one or
+  equivalently $f(r)$ close to zero
+\end{enumerate}
+
+
+The inputs for our function are:
+\begin{itemize}
+\item \texttt{a}: the vector of ages (or mid-point of age-intervals) 
+\item \texttt{L}: survival schedule. Practically, the female lifetable $L_a$ divided by its radix, $l_{0}$
+\item \texttt{m}: maternity schedule, rate of bearing female
+  children. 
+\end{itemize}
+These inputs need to be vectors of the same length. Moreover we can include
+complementary arguments such as 
+\begin{itemize}
+\item \texttt{st.Ab=27}: a user-defined starting value for the mean age
+  at childbearing. By default we set it equal to 27
+\item \texttt{MON=FALSE}: a logical value that tells the function
+  whether to trace information on the progress of estimation. By default we could decide to avoid this trace.
+\end{itemize}
+
+Aside from the estimated intrinsic growth rate, we could ask the
+function to produce the following outcomes:
+\begin{itemize}
+\item \texttt{data}: the input information in a dataframe
+\item \texttt{yr}: the solution of Lotka's integral at the last iteration
+\item \texttt{Ab}: the internally computed mean age at childbearing,
+  which depends on $r$
+\item \texttt{NRR}: the internally computed Net Reproduction Rate
+\end{itemize}
+
+Let's write down the function \texttt{IntGroRat}:
+<<>>=
+IntGroRat <- function(a, 
+                      L, 
+                      m, 
+                      st.Ab = 27, 
+                      MON = FALSE){
+  ## function estimating intrinsic growth rate
+  ## and other demographic values
+  ## by Newton's method
+
+  ## Net Reproduction Rates
+  NRR    <- sum(L * m)
+  ## starting r
+  r      <- log(NRR) / st.Ab
+  ## iteration
+  for(i in 1:20){
+    ## y(r)
+    yr   <- sum(exp(-r * a) * L * m)
+    ## Ab
+    Ab   <- sum(a * exp(-r * a) * L * m) / yr
+    ## f(r)
+    fr   <- yr -1
+    ## f'(r)
+    f1r  <- - yr * Ab
+    ## updating r
+    r    <- r - fr / f1r
+    ## printing iteration, Lokta's equation and r
+    if(MON) {
+      cat(i, yr, r, fill = TRUE)
+    }
+    ## check convergence: fr close to zero which
+    ## is equivalent to yr close to 1 
+    if(abs(fr) < 10^-6) {
+      break
+    }
+  }
+  # one final update to Ab (which depends on r)
+  Ab   <- sum(a * exp(-r * a) * L * m) / yr
+  ## outputs
+  out  <- list(data = data.frame(ages = a, mort = L, fert = m),
+              yr = yr,
+              Ab = Ab,
+              NRR = NRR,
+              r = r)
+  return(out)
+}
+@ 
+
+A difference with respect to the previously coded
+functions is that we set up a \texttt{for}-loop within it, and we
+thus incorporate a conditional execution for stopping the iterations at the
+convergence level. Moreover we include a user-defined conditional
+execution for eventually tracing the estimation procedure, and the
+printing is done by the command \texttt{cat()} (see Module 3). Though Net
+Reproduction Rate (NRR) and mean age of childbearing ($A_{B}$) are
+only by-products of the main
+procedure, they can also be included in the final output.
+
+Finally we compose all the results into a list: This is because they have different
+structures. Note that the function does not depend on the length of the age,
+mortality, and maternity schedules, as long they have same length.
+We could thus apply our function to one-year-wide age interval,
+grouped ages as well as to data with different number of available ages.
+
+In order to test \texttt{IntGroRat()} we apply it to two datasets: Egypt
+in 1997 and USA in 1991. Both datasets are taken from
+\citet[pp.~149-150]{PrestonDemogr2001}. 
+
+First we load the datasets and quickly look at them:
+<<>>=
+egy <- read.table("FunEgypt1997.txt", header=TRUE)
+egy
+usa <- read.table("FunUSA1991.txt", header=TRUE)
+usa
+@ 
+They have the same column structure:
+\begin{itemize}
+\item \texttt{a}: mid-point in the 5-year age intervals
+\item \texttt{L}: person-years from female life-table divided by
+  the radix
+\item \texttt{m}: rate of bearing female children
+\end{itemize}
+
+While Egyptian data start from age 17.5 (interval 15-19), USA data
+present also information about age 12.5 (interval 10-14).
+
+Now we can apply our function to both cases:
+<<>>=
+fitEgy <- IntGroRat(a = egy$a, L = egy$L, m = egy$m)
+fitEgy
+
+fitUsa <- IntGroRat(a = usa$a, L = usa$L, m = usa$m,
+                    st.Ab = 28, MON = TRUE)
+fitUsa$r
+@ 
+
+In the first case we use the default values for \texttt{st.Ab} and
+\texttt{MON}, and then we print the whole output. For the USA data,
+we change the starting value for the mean age at childbearing, we
+trace the iterations, and we extract from the list-object
+\texttt{fitUSA} only the value for the intrinsic growth rate, $r$.\footnote{Note
+that our estimated $r$ for USA in 1991 is different from the one presented in
+\citet[p.~150]{PrestonDemogr2001} likely due to a typo in the book.}
+
+
+\section{Exercises}
+
+\subsection{Exercise 1}
+
+Create a function for computing square roots
+of any number using successive approximations. Hint: have a look and
+solve first exercise 2 presented in Module 3, where the approach
+is introduced.  
+
+Your function could start as follows:
+<<eval=FALSE>>=
+forsqrt <- function(x, init.guess=1, max.it=10){
+#[...]
+}
+@ 
+where \texttt{x} is the number you aim to compute the square root,
+\texttt{init.guess} is the starting value from where you begin the
+iteration and by default you could set up to 1, \texttt{max.it} is the
+maximum number of iteration of your internal \texttt{for}-loop which
+is set to 10 by default.
+
+You could also add into the function a warning that inform the user
+when the maximum number of iteration is reached, and therefore recommend to
+manually increase \texttt{max.it} to reach a good approximation of the square root
+(given the starting value).
+
+Finally test your function for different values of $x$, including big
+numbers such as $10^7$.
+
+\subsection{Exercise 2}
+
+Write a function that, given a
+set of inputs, computes several fertility
+indicators following the ideas presented by \citet{PrestonDemogr2001}
+in Boxes 5.1 and 5.5.
+
+Your function could start as follows:
+<<eval=FALSE>>=
+FertFun <- function(W, B, Bf = rep(NA, length(B)), L, 
+                    srb = 1.05, n = 5, l0 = 10^5){
+#[...]
+}
+@
+Here you can see the inputs, which are:
+\begin{itemize}
+\item mid-year population of women: \texttt{W}
+\item number of total births during the year: \texttt{B}
+\item number of female births during the year: \texttt{Bf}. In this
+  case, the default is a series of \texttt{NA} values of suitable
+  length, assuming the absence of this information.
+\item lifetable exposure ($L_x$) for females: \texttt{L}
+\item sex ratio at birth: \texttt{srb}. By default equal to 1.05 for all ages. This would be
+  useful to internally compute the number of female births when this
+  information is not available
+\item the width of age-intervals: \texttt{n}. By default
+  5-year-wide age intervals 
+\item the radix of the life table used: \texttt{l0}. By default equal to $10^5$ value.
+\end{itemize}
+
+Internally this function should compute:
+\begin{itemize}
+\item age-specific fertility rates: $F_{x} = \frac{B_{x}}{W_{x}}$
+\item total fertility rate: $TFR = n \cdot \sum F_{x}$, where
+  $n$ is the length of the interval
+\item age-specific maternity rate: $F^{F}_{x} = \frac{B^{F}_{x}}{W_{x}}$.
+\item gross reproduction rate: $GRR = n \cdot \sum F^{F}_{x}$
+\item net reproduction rate: $GRR = \frac{1}{l_{0}} \cdot \sum F^{F}_{x} \cdot L_{x}$
+\end{itemize}
+
+Hint: you could test the availability of information on the fraction/number of
+female births with the following conditional execution: \texttt{if(is.na(Bf[1])) }
+
+Remember that sex ratio at birth for mothers of a given age, $x$, is computed as:
+$$
+srb_{x} = \frac{B^{M}_{x}}{B_{x}} \, ,
+$$
+where $B^{M}_{x}$ are the number of male births to females age $x$. And that,
+in this exercise, you are only asked to assume the same $srb$ for all ages.
+
+Test your function with the following datasets:
+\texttt{USAfert1991.txt}, \texttt{USAfert1992.txt} and
+\texttt{USAfert2000.txt}. These data contain ages, mid-year female population for
+USA in 1991, 1992, and 2000, as well as the number of total births
+during the year. Moreover information about $L_x$ from the
+life table for females is given. Only for 1991 is number of female births provided. 
+
+Read your data as follows:
+<<>>=
+usa91 <- read.table("USAfert1991.txt", header = TRUE)
+usa92 <- read.table("USAfert1992.txt", header = TRUE)
+usa00 <- read.table("USAfert2000.txt", header = TRUE)
+@ 
+<<echo=FALSE>>=
+FertFun <- function(W, B, Bf = rep(NA, length(B)),
+                    L, srb = 1.05, n = 5, l0 = 10^5){
+  ## ASFR
+  Fx <- B / W
+  ## TFR
+  TFR <- sum(B / W) * n
+  ## is Bf not-available?
+  if(is.na(Bf[1])){
+    Bf <- B / (1 + srb)
+  }
+  ## age-specific maternity rate
+  FxF <- Bf / W
+  ## gross reproduction rate
+  GRR <- sum(FxF) * n
+  ## net reproduction rate
+  NRR <- sum(FxF * L) / l0
+  ## output
+  out <- list(data = data.frame(
+                  W = W, 
+                  B = B, 
+                  Bf = Bf, 
+                  asfr = Fx, 
+                  FxF = FxF),
+              TFR = TFR,
+              GRR = GRR,
+              NRR = NRR)
+  return(out)
+}
+fert91 <- FertFun(W = usa91$W, B = usa91$B, Bf = usa91$Bf, L = usa91$L)
+fert92 <- FertFun(W = usa92$W, B = usa92$B, L = usa92$L)
+fert00 <- FertFun(W = usa00$W, B = usa00$B, L = usa00$L, n = 1)
+@ 
+
+Assign the outcomes of the function to objects \texttt{fert91},
+\texttt{fert92} and \texttt{fert00} for the 3 datasets,
+respectively. Check that your function produces the following results:
+<<>>=
+fert91
+fert92
+fert00
+@ 
+
+
+
+\bibliographystyle{chicago}
+\bibliography{bibliography}
+
+\end{document}
+
