@@ -47,6 +47,7 @@ Course structure
 - Mon Sep 18, 14-16: [**Data visualization**](https://github.com/jschoeley/edsd1718-rstats/tree/master/04-data_visualization)
     - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/04-data_visualization/01-ggplot-the_basics.pdf)
     - [Self study material](http://r4ds.had.co.nz/data-visualisation.html)
+    - [How to do Lexis surfaces in ggplot?](https://github.com/jschoeley/edsd1718-rstats/tree/master/04-data_visualization/extended_notes)
 - Tue Sep 19, 14-16: [**Data transformation**](https://github.com/jschoeley/edsd1718-rstats/tree/master/05-data_transformation)
     - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/05-data_transformation/05-data_transformation.pdf)
     - [Self study material (data transformation)](http://r4ds.had.co.nz/transform.html)
