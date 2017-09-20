@@ -34,7 +34,7 @@ Course structure
     - [How to do Lexis surfaces in ggplot?](https://github.com/jschoeley/edsd1718-rstats/tree/master/04-data_visualization/extended_notes)
 - Tue Sep 19, 14-16: [**Data transformation**](https://github.com/jschoeley/edsd1718-rstats/tree/master/05-data_transformation)
     - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/05-data_transformation/05-data_transformation.pdf)
-        - [hmd_lt.RData](https://github.com/jschoeley/edsd1718-rstats/raw/master/05-data_transformation/hmd_lt.RData)
+        - [hmd_lt.RData](https://github.com/jschoeley/edsd1718-rstats/blob/master/05-data_transformation/hmd_lt.RData)
     - [Self study material (data transformation)](http://r4ds.had.co.nz/transform.html)
     - [Self study material (tidy data)](http://r4ds.had.co.nz/tidy-data.html)
 - Wed Sep 20, 14-16: [**Optimization and model fitting**](https://github.com/jschoeley/edsd1718-rstats/tree/master/06-optimization_and_model_fitting)
