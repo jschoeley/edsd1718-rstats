@@ -34,10 +34,14 @@ Course structure
     - [How to do Lexis surfaces in ggplot?](https://github.com/jschoeley/edsd1718-rstats/tree/master/04-data_visualization/extended_notes)
 - Tue Sep 19, 14-16: [**Data transformation**](https://github.com/jschoeley/edsd1718-rstats/tree/master/05-data_transformation)
     - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/05-data_transformation/05-data_transformation.pdf)
+        - [hmd_lt.RData](https://github.com/jschoeley/edsd1718-rstats/raw/master/05-data_transformation/hmd_lt.RData)
     - [Self study material (data transformation)](http://r4ds.had.co.nz/transform.html)
     - [Self study material (tidy data)](http://r4ds.had.co.nz/tidy-data.html)
 - Wed Sep 20, 14-16: [**Optimization and model fitting**](https://github.com/jschoeley/edsd1718-rstats/tree/master/06-optimization_and_model_fitting)
+    - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/06-optimization_and_model_fitting/05-optimization_and_model_fitting.R)
+        - [hmd_lt.RData](https://github.com/jschoeley/edsd1718-rstats/blob/master/06-optimization_and_model_fitting/hmd_lt.RData)
     - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/06-optimization_and_model_fitting/extended_notes/06-optimization.pdf)
+    - [Cran task views](https://cran.r-project.org/web/views/) are collections of R packages categorized by topic. The task views are a good place to get an overview of the packages available for a given problem domain.
 - Thu Sep 21, 14-16: [**Simulation**](https://github.com/jschoeley/edsd1718-rstats/tree/master/07-simulation)
     - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/07-simulation/extended_notes/07-simulation.pdf)
 - Fri Sep 22, 14-16: [**Matrix Algebra**](https://github.com/jschoeley/edsd1718-rstats/tree/master/08-matrix_algebra)
@@ -48,6 +52,8 @@ Assignments
 
 - [**Assignment 1**](https://github.com/jschoeley/edsd1718-rstats/tree/master/assignment1/assignment1.pdf) due Sunday, September 17.
     - [Reference solution](https://github.com/jschoeley/edsd1718-rstats/blob/master/assignment1/solution/assignment1_solution.pdf)
+
+- **Assignment 2** due Sunday, October 1.
 
 ### Format
 
