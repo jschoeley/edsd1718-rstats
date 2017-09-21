@@ -42,7 +42,7 @@ Course structure
         - [hmd_lt.RData](https://github.com/jschoeley/edsd1718-rstats/blob/master/06-optimization_and_model_fitting/hmd_lt.RData)
     - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/06-optimization_and_model_fitting/extended_notes/06-optimization.pdf)
     - [Cran task views](https://cran.r-project.org/web/views/) are collections of R packages categorized by topic. The task views are a good place to get an overview of the packages available for a given problem domain.
-- Thu Sep 21, 14-16: [**Simulation**](https://github.com/jschoeley/edsd1718-rstats/tree/master/07-simulation)
+- Thu Sep 21, 14-16: [**Probability distributions and simulation**](https://github.com/jschoeley/edsd1718-rstats/tree/master/07-probability_distributions_and_simulation)
     - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/07-simulation/extended_notes/07-simulation.pdf)
 - Fri Sep 22, 14-16: [**Matrix Algebra**](https://github.com/jschoeley/edsd1718-rstats/tree/master/08-matrix_algebra)
     - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/08-matrix_algebra/08-matrix_algebra.pdf)
