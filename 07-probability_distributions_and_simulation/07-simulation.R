@@ -51,6 +51,8 @@ abline(h = q, v = 0.5, col = 'red', lty = 2)
 
 #' What could a sample of 100 people who survived until age 110 look like in
 #' terms of their ages at death?
+set.seed('1987')
+
 n110 <- 110 + rexp(n = 100, rate = 0.7)
 head(n110)
 hist(n110, freq = FALSE)
