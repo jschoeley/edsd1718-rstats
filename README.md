@@ -46,7 +46,8 @@ Course structure
     - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/07-probability_distributions_and_simulation/07-simulation.pdf)
     - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/07-probability_distributions_and_simulation/extended_notes/07-simulation.pdf)
 - Fri Sep 22, 14-16: [**Matrix Algebra**](https://github.com/jschoeley/edsd1718-rstats/tree/master/08-matrix_algebra)
-    - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/08-matrix_algebra/08-matrix_algebra.pdf)
+    - [Lecture code](https://github.com/jschoeley/edsd1718-rstats/blob/master/08-matrix_algebra/08-matrix_algebra.pdf)
+    - [Self study material](https://github.com/jschoeley/edsd1718-rstats/blob/master/08-matrix_algebra/extended_notes/08-matrix_algebra.pdf)
 
 Assignments
 -----------
