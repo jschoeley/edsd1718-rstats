@@ -18,4 +18,4 @@ Actually we use the function `vector()` to create a "list" with D entries.
 
 `list[i]` returns the ith element of a list as a list. `list[[i]]` returns the content of the ith element of a list as whatever the content is.
 
-For example, if the ith element of a list is a vector with numbers 0 to 10 then list[i] returns a list with a single entry and the entry is a vector of numbers 0 to 10. list[[i]] would just return a vector of numbers 0 to 10.
+For example, if the ith element of a list is a vector with numbers 0 to 10 then `list[i]` returns a list with a single entry and the entry is a vector of numbers 0 to 10. `list[[i]]` would just return a vector of numbers 0 to 10.

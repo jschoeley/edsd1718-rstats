@@ -54,6 +54,7 @@ Assignments
 
 - [**Assignment 1**](https://github.com/jschoeley/edsd1718-rstats/tree/master/assignment1/assignment1.pdf) due Sunday, September 17.
     - [Reference solution](https://github.com/jschoeley/edsd1718-rstats/blob/master/assignment1/solution/assignment1_solution.pdf)
+    - [FAQs concerning assignment 1](https://github.com/jschoeley/edsd1718-rstats/tree/master/assignment1/faq)
 
 - **Assignment 2** due Sunday, October 1.
 
